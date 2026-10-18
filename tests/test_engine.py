@@ -36,6 +36,25 @@ def test_cuda_session_fallback_is_not_silent():
     assert verify_providers([Model()], 'cpu') == 'CPUExecutionProvider'
 
 
+def test_cuda_provider_failure_must_not_retry_on_cpu():
+    # ORT's fallback is an external boundary: emulate its documented EPFail retry.
+    class Session:
+        fallback = True
+        def get_providers(self):
+            return ['CUDAExecutionProvider', 'CPUExecutionProvider']
+        def disable_fallback(self):
+            self.fallback = False
+        def run(self):
+            if self.fallback:
+                return 'silently executed on CPU'
+            raise RuntimeError('CUDA execution failed')
+    session = Session()
+    model = SimpleNamespace(session=session)
+    verify_providers([model], 'cuda')
+    with pytest.raises(RuntimeError, match='CUDA execution failed'):
+        session.run()
+
+
 def test_swap_does_not_mutate_target():
     # Use the engine orchestration with a deterministic stand-in for ONNX inference.
     engine = object.__new__(FaceEngine)

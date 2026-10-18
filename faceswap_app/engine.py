@@ -24,6 +24,10 @@ def verify_providers(models, device):
     for model in models:
         if expected not in model.session.get_providers():
             raise RuntimeError('CUDA 초기화 실패. NVIDIA 드라이버와 GPU 설치를 확인하거나 CPU를 선택하세요.')
+        if device == 'cuda':
+            # ORT otherwise catches an execution-provider failure and retries on CPU.
+            # Individual unsupported graph nodes may still legitimately use CPU.
+            model.session.disable_fallback()
     return expected
 
 
