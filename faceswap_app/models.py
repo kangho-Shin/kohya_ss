@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 import argparse
 import hashlib
-import json
 import shutil
 import tempfile
 import urllib.request
@@ -12,7 +11,12 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MODELS = ROOT / 'models'
 RELEASE = 'https://github.com/deepinsight/insightface/releases/download/model-zoo/'
-RELEASE_API = 'https://api.github.com/repos/deepinsight/insightface/releases/tags/model-zoo'
+# Published by GitHub on the official model-zoo release, checked 2026-10-18:
+# https://github.com/deepinsight/insightface/releases/expanded_assets/model-zoo
+ASSETS = {
+    'buffalo_l.zip': '80ffe37d8a5940d59a7384c201a2a38d4741f2f3c51eef46ebb28218a7b0ca2f',
+    'inswapper_128.onnx': 'e4a3f08c753cb72d04e10aa0f7dbe3deebbf39567d4ead6dce08e98aa49e16af',
+}
 BUFFALO_FILES = ('det_10g.onnx', 'w600k_r50.onnx')
 
 
@@ -82,23 +86,15 @@ def extract_buffalo(archive: Path, destination: Path):
 
 
 def prepare(model_dir: Path):
-    request = urllib.request.Request(RELEASE_API, headers={'User-Agent': 'PersonalPhotoSwap/1.0'})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        assets = {a['name']: a for a in json.load(response)['assets']}
     model_dir.mkdir(parents=True, exist_ok=True)
-    for name in ('buffalo_l.zip', 'inswapper_128.onnx'):
-        asset = assets.get(name)
-        digest = (asset or {}).get('digest') or ''
-        if not digest.startswith('sha256:') or asset['browser_download_url'] != RELEASE + name:
-            raise ValueError('공식 배포 파일의 SHA-256 정보를 확인할 수 없습니다: ' + name)
+    for name, expected in ASSETS.items():
         target = model_dir / name
-        expected = digest.removeprefix('sha256:')
         existing = None
         if target.is_file():
             with target.open('rb') as stream:
                 existing = hashlib.file_digest(stream, 'sha256').hexdigest()
         if existing != expected:
-            print(f'{name}: {asset["size"] / 1024**2:.0f} MB 다운로드', flush=True)
+            print(f'{name}: 공식 모델 다운로드 (총 약 850 MB)', flush=True)
             download_file(RELEASE + name, target, expected)
         if name.endswith('.zip'):
             extract_buffalo(target, model_dir / 'buffalo_l')
