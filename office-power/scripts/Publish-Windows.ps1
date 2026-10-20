@@ -14,7 +14,7 @@ $project = (Resolve-Path (Join-Path $scriptDirectory '..')).Path
 $OutputRoot = [IO.Path]::GetFullPath($OutputRoot)
 $bundle = Join-Path $OutputRoot 'OfficePower-win-x64'
 New-Item -ItemType Directory -Path $bundle -Force | Out-Null
-foreach ($part in @('Agent', 'Controller')) {
+foreach ($part in @('Agent', 'Controller', 'AgentSetup')) {
     $csproj = Join-Path $project "src\OfficePower.$part\OfficePower.$part.csproj"
     & dotnet publish $csproj -c Release -r win-x64 --self-contained true `
         -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o (Join-Path $bundle $part)
@@ -24,5 +24,8 @@ foreach ($file in @('Install-Agent.ps1', 'Uninstall-Agent.ps1', 'Install-Agent.c
     Copy-Item -LiteralPath (Join-Path $scriptDirectory $file) -Destination $bundle -Force
 }
 Copy-Item -LiteralPath (Join-Path $project 'README.md') -Destination $bundle -Force
+Copy-Item -LiteralPath (Join-Path $bundle 'AgentSetup\AgentSetup.exe') -Destination (Join-Path $bundle 'AgentSetup.exe') -Force
+Remove-Item -LiteralPath (Join-Path $bundle 'AgentSetup') -Recurse -Force
 Write-Host "Windows folder: $bundle"
-Write-Host 'Copy this entire folder to the target PC, then run Install-Agent.cmd as administrator.'
+Write-Host 'Target PC: copy AgentSetup.exe only, double-click, then choose Install / Update.'
+Write-Host 'Controller PC: use the Controller folder.'

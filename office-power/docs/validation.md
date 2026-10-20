@@ -44,3 +44,12 @@
 인증 자료 위치 변경 후 Windows 실제 설치·이전 버전에서의 업데이트는 아직 실행하지 않았다. 자동 워크플로는 실행하지 않았다.
 
 PC별 `컴퓨터이름-pairing.json` 생성, 재초기화 시 기존 공통 파일 제거 및 인증키·PC 이름 유지도 테스트했다. 등록 화면은 기존 JSON 파일도 계속 가져올 수 있다.
+
+## WinForms AgentSetup 추가
+
+- 기존 C# 테스트 28개 통과(실패·건너뜀 0). 새 설치 프로젝트를 포함한 Release 솔루션 빌드 경고 0·오류 0.
+- AgentSetup의 Windows x64 self-contained 단일 EXE 게시 성공. 네이티브 라이브러리도 포함하도록 지정했으며 출력에는 EXE와 선택적 PDB만 있다.
+- `Test-SetupPayload.ps1`로 포함된 Agent EXE·설치/제거 스크립트의 SHA-256을 현재 파일과 대조해 통과했다. 이 검사는 설치나 서비스 변경을 하지 않는다.
+- `Test-ScriptPaths.ps1` 경로 회귀 검사 및 전체 PowerShell 구문 검사 통과.
+- Linux의 PowerShell에서 전체 배포 스크립트를 실행하는 검사는 NuGet-Migrations mutex 권한 오류로 완료하지 못했다. SDK를 직접 호출한 AgentSetup 게시와 PowerShell 구문 검사는 통과했다.
+- 실제 Windows UAC·설치 화면·파일 저장 대화상자·기존 Windows 서비스 업데이트/제거는 이 클라우드에서 실행하지 못했다. 원격 워크플로와 이메일 알림은 실행하지 않았다.

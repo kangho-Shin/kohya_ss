@@ -70,6 +70,10 @@ foreach ($path in @($installDir, $dataDir) | Select-Object -Unique) {
 }
 & $exe --initialize
 if ($LASTEXITCODE -ne 0) { throw 'Agent initialization failed. Existing credentials were preserved.' }
+$pairingPath = Join-Path $dataDir ($env:COMPUTERNAME + '-pairing.json')
+if (-not (Test-Path -LiteralPath $pairingPath -PathType Leaf)) {
+    throw 'Agent did not create the named pairing file. Rebuild the current AgentSetup.exe and try again.'
+}
 
 if (-not $existing) {
     New-Service -Name $serviceName -BinaryPathName ('"' + $exe + '"') -DisplayName 'Office Power Agent' -StartupType Automatic | Out-Null
@@ -89,5 +93,5 @@ New-NetFirewallRule -Name 'OfficePowerAgent-LAN' -DisplayName 'Office Power Agen
 Start-Service -Name $serviceName
 (Get-Service -Name $serviceName).WaitForStatus('Running', [TimeSpan]::FromSeconds(30))
 Write-Host 'Installed. Pairing file (contains a secret; transfer securely):'
-Write-Host (Join-Path $dataDir ($env:COMPUTERNAME + '-pairing.json'))
+Write-Host $pairingPath
 Write-Host 'On the controller PC, import this file using PC registration.'

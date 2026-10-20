@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>AgentSetup</AssemblyName>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <AgentPayloadDirectory>$(MSBuildProjectDirectory)/obj/embedded-agent/$(Configuration)</AgentPayloadDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../scripts/Install-Agent.ps1" LogicalName="Install-Agent.ps1" />
+    <EmbeddedResource Include="../../scripts/Uninstall-Agent.ps1" LogicalName="Uninstall-Agent.ps1" />
+    <Compile Update="SetupForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Update="SetupForm.Designer.cs"><DependentUpon>SetupForm.cs</DependentUpon></Compile>
+  </ItemGroup>
+  <Target Name="PrepareAgentPayload" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Exec Command="dotnet publish &quot;$(MSBuildProjectDirectory)/../OfficePower.Agent/OfficePower.Agent.csproj&quot; -c $(Configuration) -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableWindowsTargeting=true --artifacts-path &quot;$(MSBuildProjectDirectory)/obj/agent-build&quot; -o &quot;$(AgentPayloadDirectory)&quot;" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(AgentPayloadDirectory)/OfficePower.Agent.exe" LogicalName="OfficePower.Agent.exe" />
+    </ItemGroup>
+  </Target>
+</Project>
