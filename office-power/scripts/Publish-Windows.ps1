@@ -24,7 +24,5 @@ foreach ($file in @('Install-Agent.ps1', 'Uninstall-Agent.ps1', 'Install-Agent.c
     Copy-Item -LiteralPath (Join-Path $scriptDirectory $file) -Destination $bundle -Force
 }
 Copy-Item -LiteralPath (Join-Path $project 'README.md') -Destination $bundle -Force
-$zip = Join-Path $OutputRoot 'OfficePower-win-x64.zip'
-Compress-Archive -Path (Join-Path $bundle '*') -DestinationPath $zip -Force
-Get-FileHash -Algorithm SHA256 -LiteralPath $zip | Format-List
-Write-Host "Windows package: $zip"
+Write-Host "Windows folder: $bundle"
+Write-Host 'Copy this entire folder to the target PC, then run Install-Agent.cmd as administrator.'

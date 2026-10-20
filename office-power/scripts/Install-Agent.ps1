@@ -36,7 +36,7 @@ function Set-RestrictedDirectory([string]$Path) {
 }
 
 if (-not (Test-Path -LiteralPath (Join-Path $AgentSource 'OfficePower.Agent.exe'))) {
-    throw 'Agent folder not found. Extract the full Windows release ZIP first.'
+    throw 'Agent folder not found. Copy the complete published folder, including the Agent subfolder.'
 }
 foreach ($path in @($installDir, $dataDir) | Select-Object -Unique) {
     if ((Test-Path -LiteralPath $path) -and ((Get-Item -LiteralPath $path).Attributes -band [IO.FileAttributes]::ReparsePoint)) {

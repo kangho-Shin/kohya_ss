@@ -11,15 +11,15 @@
 
 ## Windows에서 설치하기
 
-1. GitHub **Code → Download ZIP**으로 소스를 받습니다. ZIP의 **속성 → 차단 해제**가 있다면 출처를 확인한 후 해제하고 압축을 풉니다. VS2022에서 `office-power\OfficePower.sln`을 열고 아래 **소스에서 빌드하기** 절차로 `OfficePower-win-x64.zip`을 만드세요. 기존 v0.1.0 릴리스는 이전 UI 버전이며 현재 WinForms 소스와 다릅니다.
-2. 생성한 실행용 ZIP을 PC마다 옮기고 압축을 풉니다. **Code → Download ZIP은 소스 코드**이므로 실행용 ZIP과 다릅니다.
+1. Git 저장소를 Pull한 뒤 아래 **소스에서 빌드하기**의 `Publish-Windows.ps1`을 실행합니다. VS2022 일반 빌드만으로는 설치 스크립트가 출력 폴더에 복사되지 않습니다.
+2. 생성된 `artifacts\OfficePower-win-x64` 폴더 전체를 대상 PC로 복사합니다. ZIP 생성이나 압축 해제는 필요 없습니다.
 3. 관리할 대상 PC마다 **Install-Agent.cmd → 우클릭 → 관리자 권한으로 실행**합니다. 현재 PC의 설정을 바꾸므로 대상 PC에서만 실행하세요.
 4. 설치가 끝나면 대상 PC의 `C:\Program Files\OfficePowerAgent\컴퓨터이름-pairing.json`을 관리자 권한으로 복사해 관리 PC로 안전하게 옮깁니다. 이 파일에는 해당 PC를 끌 수 있는 인증키가 있으므로 GitHub·공용 폴더·채팅에 올리지 마세요.
 5. 관리 PC에서는 **Start-Controller.cmd** 또는 `Controller\OfficePower.Controller.exe`를 실행합니다. 관리자 권한은 필요 없습니다.
 6. **PC 등록 → 인증 파일 가져오기**로 대상 PC의 파일을 선택합니다. 이름·IP·유선 랜카드 MAC 주소를 확인한 뒤 저장합니다. 다중 랜카드/VPN이 있으면 실제 사무실 망의 IP와 유선 MAC으로 수정하세요.
 7. 목록의 체크박스를 선택하고 **연결 확인**을 누릅니다. 서비스 정상 연결을 확인한 뒤 켜기·끄기를 사용하세요.
 
-실행용 ZIP에는 .NET 런타임이 들어 있으므로 대상 PC와 관리 PC에 SDK/.NET을 별도 설치할 필요가 없습니다. 지원 대상은 Windows 10/11 x64입니다. 처음에는 PC 한 대만 등록해 시험하세요.
+생성된 배포 폴더에는 .NET 런타임이 들어 있으므로 대상 PC와 관리 PC에 SDK/.NET을 별도 설치할 필요가 없습니다. 지원 대상은 Windows 10/11 x64입니다. 처음에는 PC 한 대만 등록해 시험하세요.
 
 ## 전원 켜기: 최초 하드웨어 설정
 
@@ -75,7 +75,7 @@ dotnet build OfficePower.sln -c Release
 .\scripts\Publish-Windows.ps1
 ```
 
-생성 위치는 `artifacts\OfficePower-win-x64.zip`입니다. 소스에서 직접 게시한 경우에도 `Install-Agent.ps1`과 `Agent` 폴더가 같은 폴더에 있어야 합니다.
+생성 위치는 `artifacts\OfficePower-win-x64` 폴더입니다. 이 폴더 전체를 복사하세요. 소스에서 직접 게시한 경우에도 `Install-Agent.ps1`과 `Agent` 폴더가 같은 폴더에 있어야 합니다.
 
 **알림 정책:** GitHub Actions의 push/PR/태그 자동 실행과 자동 릴리스 게시를 껐습니다. Actions는 사용자가 직접 수동 실행할 때만 동작합니다. 계정 자체의 이메일 알림 설정은 변경하지 않았으며, 코드에서 이메일을 발송하지 않습니다.
 
