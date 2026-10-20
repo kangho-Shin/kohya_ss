@@ -8,7 +8,8 @@ namespace OfficePower.Controller;
 public partial class MainForm : Form
 {
     private readonly BindingList<PcRow> computers = [];
-    private readonly PcStore store = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OfficePower", "computers.json"), new WindowsSecretProtector());
+    private readonly string dataPath = Path.Combine(AppContext.BaseDirectory, "RemoteData", "computers.json");
+    private readonly PcStore store;
     private readonly PowerClient client = new();
     private bool busy;
     private bool loadFailed;
@@ -16,6 +17,7 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
+        store = new PcStore(dataPath, new WindowsSecretProtector());
         computerSource.DataSource = computers;
     }
 
@@ -31,7 +33,7 @@ public partial class MainForm : Form
         {
             loadFailed = true;
             statusLabel.Text = "등록 파일 읽기 실패. 기존 파일 보호를 위해 편집을 중단했습니다.";
-            Info("등록 파일을 보존했습니다. %LOCALAPPDATA%\\OfficePower\\computers.json을 확인하세요.");
+            Info("등록 파일을 보존했습니다. 다음 파일과 접근 권한을 확인하세요:\n" + dataPath);
         }
         finally { SetBusy(false); }
 

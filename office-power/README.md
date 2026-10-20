@@ -47,7 +47,7 @@
 - 대상 서비스는 `OfficePowerAgent` 이름으로 자동 시작하며 LocalSystem 계정으로 실행합니다. 임의 명령·파일 전송·화면 제어 기능은 없습니다.
 - **HTTPS TCP 18765**, 방화벽 **Private/Domain 프로필 + LocalSubnet**만 허용합니다. 사무실 네트워크 프로필이 공용이면 회사 정책에 맞게 관리자에게 확인하세요. 인터넷에 포트를 개방하지 마세요.
 - 대상 PC 설치 위치: `C:\Program Files\OfficePowerAgent`. `컴퓨터이름-pairing.json`과 인증 자료는 설치된 `OfficePower.Agent.exe`와 같은 폴더에 저장합니다 (SYSTEM·Administrators 전용).
-- 관리 PC 등록 목록: `%LOCALAPPDATA%\OfficePower\computers.json`. 인증키는 Windows 사용자 DPAPI로 암호화되므로 다른 계정·컴퓨터에 이 파일만 복사해서 쓸 수 없습니다.
+- 관리 PC 등록 목록: Controller 실행 파일 옆의 `RemoteData\computers.json`. 폴더는 처음 저장할 때 생성됩니다. 기존 AppData 파일은 자동 이전하지 않으므로 Controller를 종료하고 직접 복사하세요. 인증키는 Windows 사용자 DPAPI로 암호화되므로 같은 PC·같은 Windows 계정에서 사용해야 합니다.
 - 인증 파일은 안전하게 전달하고 관리 앱에 등록한 뒤 전달용 사본을 삭제하거나 보호해 보관하세요. 인증서는 5년 유효하며 교체 시 인증 파일을 다시 가져와야 합니다.
 - 수정된 Agent를 다시 빌드·설치해야 새 저장 위치가 적용됩니다. 이전 버전의 ProgramData 인증 자료는 인증키·인증서를 유지해 실행 파일 폴더로 복사하며 원본도 보존합니다. 다시 설치하면 기존 인증키를 유지합니다. 제거는 `AgentSetup.exe`의 **서비스 제거**를 누르며 서비스·방화벽만 제거하고 파일과 인증 자료는 보존합니다.
 
