@@ -2,12 +2,19 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../OfficePower.Core/OfficePower.Core.csproj" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="MainForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Update="MainForm.Designer.cs"><DependentUpon>MainForm.cs</DependentUpon></Compile>
+    <Compile Update="RegistrationForm.cs"><SubType>Form</SubType></Compile>
+    <Compile Update="RegistrationForm.Designer.cs"><DependentUpon>RegistrationForm.cs</DependentUpon></Compile>
   </ItemGroup>
 </Project>

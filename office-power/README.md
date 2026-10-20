@@ -2,7 +2,7 @@
 
 같은 사무실 LAN에 있는 Windows PC 여러 대를 등록하고 켜거나 끄는 C# 프로젝트입니다.
 
-WPF 관리 프로그램과 Windows 서비스 에이전트를 제공합니다. **Visual Studio 2022 / .NET 8 / C# 12** 프로젝트이며 기존 얼굴 교체 프로그램과 별개입니다.
+**WinForms 관리 프로그램**과 Windows 서비스 에이전트를 제공합니다. **Visual Studio 2022 / .NET 8 / C# 12** 프로젝트이며 기존 얼굴 교체 프로그램과 별개입니다.
 
 - 관리자 프로그램: PC 이름·IP·MAC 등록, 선택한 PC 켜기·끄기.
 - 대상 PC: 자동 실행 Windows 서비스 설치.
@@ -11,8 +11,8 @@ WPF 관리 프로그램과 Windows 서비스 에이전트를 제공합니다. **
 
 ## Windows에서 설치하기
 
-1. [Office Power 릴리스](https://github.com/kangho-Shin/kohya_ss/releases/tag/office-power-v0.1.0)에서 **OfficePower-win-x64.zip**을 받습니다. 릴리스가 아직 빌드 중이면 [Actions → Office Power Windows](https://github.com/kangho-Shin/kohya_ss/actions/workflows/office-power.yml)의 완료 여부를 확인하세요.
-2. 내려받은 ZIP의 **속성 → 차단 해제**가 있다면 출처를 확인한 후 해제하고 압축을 풉니다. **Code → Download ZIP은 소스 코드**이므로 실행용 ZIP과 다릅니다.
+1. GitHub **Code → Download ZIP**으로 소스를 받습니다. ZIP의 **속성 → 차단 해제**가 있다면 출처를 확인한 후 해제하고 압축을 풉니다. VS2022에서 `office-power\OfficePower.sln`을 열고 아래 **소스에서 빌드하기** 절차로 `OfficePower-win-x64.zip`을 만드세요. 기존 v0.1.0 릴리스는 이전 UI 버전이며 현재 WinForms 소스와 다릅니다.
+2. 생성한 실행용 ZIP을 PC마다 옮기고 압축을 풉니다. **Code → Download ZIP은 소스 코드**이므로 실행용 ZIP과 다릅니다.
 3. 관리할 대상 PC마다 **Install-Agent.cmd → 우클릭 → 관리자 권한으로 실행**합니다. 현재 PC의 설정을 바꾸므로 대상 PC에서만 실행하세요.
 4. 설치가 끝나면 대상 PC의 `C:\ProgramData\OfficePowerAgent\pairing.json`을 관리자 권한으로 복사해 관리 PC로 안전하게 옮깁니다. 이 파일에는 해당 PC를 끌 수 있는 인증키가 있으므로 GitHub·공용 폴더·채팅에 올리지 마세요.
 5. 관리 PC에서는 **Start-Controller.cmd** 또는 `Controller\OfficePower.Controller.exe`를 실행합니다. 관리자 권한은 필요 없습니다.
@@ -55,6 +55,8 @@ WPF 관리 프로그램과 Windows 서비스 에이전트를 제공합니다. **
 
 솔루션 탐색기에서 **OfficePower.Controller → 시작 프로젝트로 설정 → F5**로 관리 화면을 실행합니다. 에이전트는 서비스용이므로 대상 PC의 설치 스크립트로 설치합니다. 테스트 탐색기에서 OfficePower.Tests를 실행할 수 있으며 실제 종료는 테스트하지 않습니다.
 
+**폼 디자인 수정:** `MainForm.cs` 또는 `RegistrationForm.cs`를 우클릭하고 **디자이너 보기(Shift+F7)**를 선택하세요. UI 배치는 각각 `MainForm.Designer.cs`, `RegistrationForm.Designer.cs`에 분리했습니다. 버튼 이벤트와 처리 로직은 기본 `.cs` 파일에 있습니다.
+
 터미널에서 빌드할 때는 이 폴더에서 실행합니다.
 
 ```powershell
@@ -63,7 +65,9 @@ dotnet build OfficePower.sln -c Release
 .\scripts\Publish-Windows.ps1
 ```
 
-생성 위치는 `artifacts\OfficePower-win-x64.zip`입니다. 소스에서 직접 게시한 경우에도 `Install-Agent.ps1`과 `Agent` 폴더가 같은 폴더에 있어야 합니다. GitHub Actions도 같은 명령으로 Windows에서 테스트·배포 ZIP을 생성합니다.
+생성 위치는 `artifacts\OfficePower-win-x64.zip`입니다. 소스에서 직접 게시한 경우에도 `Install-Agent.ps1`과 `Agent` 폴더가 같은 폴더에 있어야 합니다.
+
+**알림 정책:** GitHub Actions의 push/PR/태그 자동 실행과 자동 릴리스 게시를 껐습니다. Actions는 사용자가 직접 수동 실행할 때만 동작합니다. 계정 자체의 이메일 알림 설정은 변경하지 않았으며, 코드에서 이메일을 발송하지 않습니다.
 
 ## 검증 범위
 

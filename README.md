@@ -1,10 +1,10 @@
 # 사무실 PC 전원 관리 — C# / Windows
 
-여러 PC의 IP·MAC을 등록하고 같은 사무실 망에서 켜기·끄기를 실행하는 **C# 관리 프로그램과 Windows 서비스**입니다.
+여러 PC의 IP·MAC을 등록하고 같은 사무실 망에서 켜기·끄기를 실행하는 **VS2022 / .NET 8 / WinForms 관리 프로그램과 Windows 서비스**입니다.
 
-**[C# 프로젝트](office-power/) · [설치 및 사용 방법](office-power/README.md) · [윈도우 실행 ZIP 릴리스](https://github.com/kangho-Shin/kohya_ss/releases/tag/office-power-v0.1.0)**
+**[C# 프로젝트](office-power/) · [VS2022 솔루션](office-power/OfficePower.sln) · [설치 및 사용 방법](office-power/README.md)**
 
-대상 PC에는 `Install-Agent.cmd`, 관리 PC에서는 `Start-Controller.cmd`를 사용합니다. 실행 ZIP은 릴리스 빌드가 끝나면 위 릴리스에 첨부됩니다.
+VS2022에서 솔루션을 열고 `OfficePower.Controller`를 시작 프로젝트로 지정합니다. 배포용 ZIP 생성 방법은 설치 안내에 있습니다. 자동 빌드·자동 릴리스는 사용자의 알림 중단 요청에 따라 수동 실행으로 변경했습니다.
 
 ---
 

@@ -1,0 +1,151 @@
+using System.ComponentModel;
+using System.Net;
+using System.Net.NetworkInformation;
+using OfficePower.Core;
+
+namespace OfficePower.Controller;
+
+public partial class MainForm : Form
+{
+    private readonly BindingList<PcRow> computers = [];
+    private readonly PcStore store = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OfficePower", "computers.json"), new WindowsSecretProtector());
+    private readonly PowerClient client = new();
+    private bool busy;
+    private bool loadFailed;
+
+    public MainForm()
+    {
+        InitializeComponent();
+        computerSource.DataSource = computers;
+    }
+
+    private async void MainForm_Shown(object? sender, EventArgs e)
+    {
+        SetBusy(true);
+        try
+        {
+            foreach (var pc in await store.LoadAsync()) computers.Add(new PcRow(pc));
+            statusLabel.Text = $"등록된 PC {computers.Count}대 · 체크한 PC에 전원 요청을 보냅니다.";
+        }
+        catch (Exception)
+        {
+            loadFailed = true;
+            statusLabel.Text = "등록 파일 읽기 실패. 기존 파일 보호를 위해 편집을 중단했습니다.";
+            Info("등록 파일을 보존했습니다. %LOCALAPPDATA%\\OfficePower\\computers.json을 확인하세요.");
+        }
+        finally { SetBusy(false); }
+    }
+
+    private void SetBusy(bool value)
+    {
+        busy = value;
+        toolbar.Enabled = powerPanel.Enabled = computerGrid.Enabled = !value && !loadFailed;
+        UseWaitCursor = value;
+    }
+
+    private async void AddButton_Click(object? sender, EventArgs e)
+    {
+        using var dialog = new RegistrationForm();
+        if (dialog.ShowDialog(this) != DialogResult.OK || dialog.Result is null) return;
+        await PersistChange(computers.Select(r => r.Record).Append(dialog.Result).ToList());
+    }
+
+    private async void EditButton_Click(object? sender, EventArgs e)
+    {
+        if (computerGrid.CurrentRow?.DataBoundItem is not PcRow row) { Info("수정할 행을 클릭하세요."); return; }
+        using var dialog = new RegistrationForm(row.Record);
+        if (dialog.ShowDialog(this) != DialogResult.OK || dialog.Result is null) return;
+        await PersistChange(computers.Select(r => r.Record.Id == row.Record.Id ? dialog.Result : r.Record).ToList());
+    }
+
+    private async void DeleteButton_Click(object? sender, EventArgs e)
+    {
+        if (computerGrid.CurrentRow?.DataBoundItem is not PcRow row) { Info("삭제할 행을 클릭하세요."); return; }
+        if (MessageBox.Show(this, $"'{row.Name}' 등록을 삭제할까요? PC 서비스는 제거되지 않습니다.", "등록 삭제", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+        await PersistChange(computers.Where(r => r != row).Select(r => r.Record).ToList());
+    }
+
+    private async Task PersistChange(List<PcRecord> list)
+    {
+        SetBusy(true);
+        try
+        {
+            await store.SaveAsync(list);
+            computers.Clear();
+            foreach (var pc in list) computers.Add(new PcRow(pc));
+            statusLabel.Text = $"등록 정보 저장 완료 · {computers.Count}대";
+        }
+        catch (Exception ex) { Info("저장 실패: " + ex.Message); }
+        finally { SetBusy(false); }
+    }
+
+    private void SelectAllButton_Click(object? sender, EventArgs e)
+    {
+        bool value = computers.Any(r => !r.Selected);
+        foreach (var row in computers) row.Selected = value;
+    }
+
+    private void ComputerGrid_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
+    {
+        if (computerGrid.IsCurrentCellDirty) computerGrid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+    }
+
+    private PcRow[] SelectedRows()
+    {
+        computerGrid.EndEdit();
+        computerSource.EndEdit();
+        var rows = computers.Where(r => r.Selected).ToArray();
+        if (rows.Length == 0) Info("왼쪽 체크박스에서 PC를 선택하세요.");
+        return rows;
+    }
+
+    private async Task Execute(PcRow[] rows, Func<PcRecord, Task<string>> operation, Func<PcRecord, bool>? deferUntilLast = null)
+    {
+        if (rows.Length == 0 || busy) return;
+        SetBusy(true);
+        try
+        {
+            foreach (var row in rows) row.Status = "처리 중…";
+            statusLabel.Text = $"{rows.Length}대 처리 중…";
+            var results = await PowerOperations.RunAsync(rows.Select(r => r.Record), operation, deferUntilLast);
+            foreach (var result in results) rows.Single(r => r.Record.Id == result.Id).Status = result.Message;
+            statusLabel.Text = $"처리 완료 · 성공 {results.Count(r => r.Success)}대 / 오류 {results.Count(r => !r.Success)}대 · 요청 전송과 실제 전원 변경은 다릅니다.";
+        }
+        catch (Exception) { Info("처리 중 오류가 발생했습니다. 목록과 연결을 확인하세요."); }
+        finally { SetBusy(false); }
+    }
+
+    private async void WakeButton_Click(object? sender, EventArgs e) => await Execute(SelectedRows(), async pc =>
+    {
+        await WakeOnLan.SendAsync(pc.Mac, IPAddress.Parse(pc.Broadcast));
+        return "켜기 요청 전송 (부팅 미확인)";
+    });
+
+    private async void StatusButton_Click(object? sender, EventArgs e) => await Execute(SelectedRows(), async pc =>
+    {
+        var status = await client.GetStatusAsync(pc);
+        return status.State == "shutdown-scheduled" ? "연결됨 · 종료 예약 중" : "연결됨 · 서비스 정상";
+    });
+
+    private async void ShutdownButton_Click(object? sender, EventArgs e)
+    {
+        var rows = SelectedRows();
+        if (rows.Length == 0) return;
+        if (MessageBox.Show(this, $"선택한 {rows.Length}대에 30초 후 종료를 요청할까요?\n\n" +
+            string.Join("\n", rows.Take(10).Select(r => $"• {r.Name} ({r.Ip})")) +
+            "\n\n작업을 먼저 저장하세요. 저장하지 않은 앱은 종료를 막을 수 있습니다.", "PC 종료 확인",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+        var localAddresses = NetworkInterface.GetAllNetworkInterfaces().SelectMany(n => n.GetIPProperties().UnicastAddresses).Select(a => a.Address).ToArray();
+        bool IsLocal(PcRecord pc) => IPAddress.IsLoopback(IPAddress.Parse(pc.Ip)) || localAddresses.Contains(IPAddress.Parse(pc.Ip));
+        if (rows.Any(r => IsLocal(r.Record)) && MessageBox.Show(this,
+            "관리 프로그램이 실행 중인 이 PC도 선택되었습니다. 정말 종료할까요?", "현재 PC 종료",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+        await Execute(rows, async pc => { await client.ShutdownAsync(pc); return "종료 예약됨 (30초)"; }, IsLocal);
+    }
+
+    private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        if (busy) { e.Cancel = true; Info("현재 요청이 끝난 뒤 창을 닫아 주세요."); }
+    }
+    private void Info(string text) => MessageBox.Show(this, text, "사무실 PC 전원 관리", MessageBoxButtons.OK, MessageBoxIcon.Information);
+}
