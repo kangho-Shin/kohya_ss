@@ -96,3 +96,5 @@ dotnet build OfficePower.sln -c Release
 아이콘: Controller는 파란색, Agent·AgentSetup은 초록색 PC 전원 아이콘을 사용합니다. 창과 작업 표시줄 아이콘도 EXE 내부 리소스를 사용하므로 별도 ICO 파일을 배포할 필요가 없습니다. 원본은 `assets`에 있으며 수정 시 `scripts/Generate-Icons.py`(Pillow 필요)로 다시 생성할 수 있습니다.
 
 사무실·현장 설치 및 장애 대응 TXT: [OfficePower-Field-Guide-KO.txt](OfficePower-Field-Guide-KO.txt). 배포 폴더에도 함께 복사됩니다.
+
+현장 점검 도구: 배포 폴더의 `FieldTools\Field-Tools.cmd`를 더블클릭하면 관리자 권한 승인 후 진단·Public 연결 변경·서비스 시작을 메뉴로 실행할 수 있습니다. 결과는 옆 `Reports` 폴더에 저장됩니다. 소스에서는 `field-tools` 폴더 전체를 사용하세요. 개발 PC에서는 `scripts\Publish-Windows.cmd` 더블클릭으로 배포본을 만들 수 있습니다.

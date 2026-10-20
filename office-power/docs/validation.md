@@ -53,3 +53,7 @@ PC별 `컴퓨터이름-pairing.json` 생성, 재초기화 시 기존 공통 파�
 - `Test-ScriptPaths.ps1` 경로 회귀 검사 및 전체 PowerShell 구문 검사 통과.
 - Linux의 PowerShell에서 전체 배포 스크립트를 실행하는 검사는 NuGet-Migrations mutex 권한 오류로 완료하지 못했다. SDK를 직접 호출한 AgentSetup 게시와 PowerShell 구문 검사는 통과했다.
 - 실제 Windows UAC·설치 화면·파일 저장 대화상자·기존 Windows 서비스 업데이트/제거는 이 클라우드에서 실행하지 못했다. 원격 워크플로와 이메일 알림은 실행하지 않았다.
+
+## 현장 배치 도구
+
+Field-Tools.cmd/ps1의 메뉴로 연결 검사·대상 PC 진단·선택한 Public 프로필 변경·서비스 시작·설정 화면 열기를 제공한다. 실제 네트워크 명령을 대역으로 바꿔 잘못된 IP/인터페이스 입력 거부, 취소 시 미변경, 지정한 Public 연결만 변경, 도메인 연결 보존을 검증했다. 전체 PowerShell 구문·설치/게시 경로 회귀 검사도 통과했다. 실제 Windows CMD·UAC·네트워크 설정 및 transcript 저장 동작은 Linux에서 실행하지 않았다. 로그는 배포 복사 대상에서 제외한다.
