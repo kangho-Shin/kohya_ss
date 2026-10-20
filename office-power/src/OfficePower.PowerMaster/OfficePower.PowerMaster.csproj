@@ -1,11 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>PowerMaster</AssemblyName>
+    <Product>PowerMaster</Product>
+    <Title>PowerMaster</Title>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <ApplicationIcon>../../assets/controller.ico</ApplicationIcon>
+    <ApplicationIcon>../../assets/powermaster.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
@@ -19,7 +22,7 @@
     <Compile Update="RegistrationForm.Designer.cs"><DependentUpon>RegistrationForm.cs</DependentUpon></Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../assets/controller.ico" LogicalName="OfficePower.App.ico" />
+    <EmbeddedResource Include="../../assets/powermaster.ico" LogicalName="OfficePower.App.ico" />
     <Compile Include="../Shared/AppIcon.cs" Link="AppIcon.cs" />
   </ItemGroup>
 </Project>

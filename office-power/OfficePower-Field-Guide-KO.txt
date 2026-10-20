@@ -5,32 +5,54 @@
 ============================================================
 1. 설치 전에 알아둘 사항
 ============================================================
-사용법: 명령어를 복사하거나 입력할 필요 없이 배치 파일을 더블클릭한다.
-현장에 가져갈 것: AgentSetup.exe, FieldTools 폴더, 이 TXT.
-관리 PC에는 추가로 Controller 폴더를 준비한다.
-FieldTools 폴더 전체를 복사해야 한다. CMD와 PS1을 분리하지 않는다.
+사용법: 관리 PC와 대상 PC에 맞는 폴더만 복사하고 해당 배치 파일을 실행한다.
 
-[현장팀용 메뉴: FieldTools\Field-Tools.cmd]
-실행 → 관리자 권한 승인 → 번호 선택.
-1: 관리 PC에서 대상 IP 연결 확인.
-2: 대상 PC 자체의 전체 상태 진단. 설정을 바꾸지 않는다.
-3: 대상 PC에서 선택한 Public 연결만 Private로 변경. 번호와 YES 확인 필요.
-4: 대상 PC에서 중지된 Agent 서비스 시작. YES 확인 필요.
-5: 대상 PC의 랜카드 설정 창 열기. WOL 옵션은 화면에서 직접 확인.
-6: 대상 PC의 전원 옵션 창 열기. 빠른 시작은 화면에서 직접 확인.
+[배포 폴더 구조]
+PowerMaster-win-x64
+  Agent
+    AgentSetup.exe           설치·업데이트·제거·등록 파일 저장
+    Agent-Tools.cmd          대상 PC 전용 점검
+    Agent-Tools.ps1
+    README-KO.txt
+  PowerMaster
+    PowerMaster.exe          관리 프로그램 (이전 이름 Controller)
+    PowerMaster-Tools.cmd    관리 PC 전용 점검
+    PowerMaster-Tools.ps1
+    README-KO.txt
+    RemoteData              기존 등록 데이터는 직접 복사
+
+[대상 PC: Agent 폴더 전체 복사]
+AgentSetup.exe: 설치/업데이트·서비스 제거·등록 파일 저장.
+Agent-Tools.cmd: 더블클릭 → 관리자 권한 승인 → 번호 선택.
+1: 이 PC의 Agent 서비스·네트워크·방화벽·IP·MAC·포트·등록 파일 위치 진단.
+2: 이 PC의 선택한 Public 연결만 Private로 변경. 신뢰하는 현장 LAN만 YES.
+3: 이 PC의 중지된 Agent 서비스 시작. YES 확인 후 실행.
+4: 이 PC의 랜카드 설정 화면 열기. WOL 옵션은 직접 확인.
+5: 이 PC의 전원 옵션 화면 열기. 빠른 시작은 직접 확인.
 0: 종료.
-각 작업 결과는 FieldTools\Reports 폴더의 TXT에 자동 저장된다.
-결과에는 IP·PC 이름이 포함되므로 현장 내부 진단용으로 보관한다.
-인증키나 JSON 본문은 출력하지 않는다.
 
-[개발자용 배포: scripts\Publish-Windows.cmd]
-개발 PC에서 더블클릭하면 배포 폴더가 생성된다. 현장 PC에서 빌드하지 않는다.
+[관리 PC: PowerMaster 폴더 전체 복사]
+PowerMaster.exe: 대상 PC 등록·연결 확인·켜기·끄기.
+PowerMaster-Tools.cmd: 더블클릭 → 번호 선택. 관리자 권한 불필요.
+1: 대상 PC IP를 입력해 TCP 연결 검사.
+2: 관리 PC 네트워크와 RemoteData 위치 확인.
+3: PowerMaster 옆 RemoteData 폴더 열기.
+0: 종료.
+관리 PC용 도구에는 대상 PC의 서비스 시작·네트워크 변경 기능이 없다.
 
-관리 PC: Controller를 실행해서 다른 PC를 켜고 끄는 컴퓨터.
+각 점검 결과는 실행한 도구 옆 Reports 폴더에 TXT로 저장된다.
+IP·PC 이름이 포함되므로 현장 내부 진단용으로 보관한다.
+인증키나 JSON 본문은 출력하지 않는다. CMD와 PS1을 함께 둔다.
+
+[개발 PC]
+scripts\Publish-Windows.cmd 더블클릭으로 두 역할의 배포 폴더를 함께 만든다.
+현장 PC에서 빌드할 필요는 없다.
+
+관리 PC: PowerMaster를 실행해서 다른 PC를 켜고 끄는 컴퓨터.
 대상 PC: Agent를 설치해서 제어받는 컴퓨터.
 
 현재 프로그램은 관리 PC와 대상 PC가 같은 LAN에 있는 구성을 기본으로 한다.
-사무실과 떨어진 현장에는 현장 LAN 안의 관리 PC에서 Controller를 사용한다.
+사무실과 떨어진 현장에는 현장 LAN 안의 관리 PC에서 PowerMaster를 사용한다.
 사무실에서 다른 현장까지 직접 제어하는 기능은 별도 네트워크 구성이 필요하다.
 VPN이 있어도 WOL 브로드캐스트가 자동 전달되는 것은 아니다.
 다른 VLAN·서브넷이면 네트워크 담당자와 VPN·현장 내 WOL 중계 등을 검토한다.
@@ -46,18 +68,18 @@ VPN이 있어도 WOL 브로드캐스트가 자동 전달되는 것은 아니다.
 ============================================================
 2. 배포본 만들기: 개발 PC에서 한 번
 ============================================================
-Git Pull 후 실행 중인 Controller·AgentSetup과 VS 디버깅을 종료한다.
+Git Pull 후 실행 중인 PowerMaster·AgentSetup과 VS 디버깅을 종료한다.
 개발 PC에서 배포 배치 파일을 실행한다.
 배치 파일이 저장소 위치를 자동으로 찾는다.
 
 개발 PC에서 scripts\Publish-Windows.cmd를 더블클릭한다.
-배포가 끝나면 완료 경로를 확인한다. 실행 중인 Controller와 설치 프로그램은 먼저 닫는다.
+배포가 끝나면 완료 경로를 확인한다. 실행 중인 PowerMaster와 설치 프로그램은 먼저 닫는다.
 
 생성 위치:
-E:\kohya_ss\office-power\artifacts\OfficePower-win-x64
+E:\kohya_ss\office-power\artifacts\PowerMaster-win-x64
 
-대상 PC에 복사할 것: AgentSetup.exe, 점검용 FieldTools 폴더, 이 TXT.
-관리 PC에 복사할 것: Controller 폴더 전체.
+대상 PC에 복사할 것: Agent 폴더 전체와 이 TXT.
+관리 PC에 복사할 것: PowerMaster 폴더 전체.
 ZIP 생성·압축 해제는 필요 없다.
 배포본에 런타임이 포함되므로 실행 PC에는 별도 .NET SDK 설치가 필요 없다.
 VS2022 일반 빌드 출력과 위 스크립트로 만든 배포본은 다르다.
@@ -84,7 +106,7 @@ VS2022 일반 빌드 출력과 위 스크립트로 만든 배포본은 다르다
 
 기존 Agent를 먼저 삭제할 필요는 없다.
 새 설치 프로그램이 기존 서비스를 중지하고 업데이트 후 다시 시작한다.
-기존 인증키·인증서를 유지하므로 등록된 Controller에서 보통 재등록할 필요가 없다.
+기존 인증키·인증서를 유지하므로 등록된 PowerMaster에서 보통 재등록할 필요가 없다.
 업데이트 실패 시 설치 창의 오류를 기록하고 다시 실행한다.
 성공 안내가 나오기 전에 창을 강제 종료하지 않는다.
 Agent EXE를 직접 더블클릭하는 것은 서비스 설치 방법이 아니다.
@@ -95,16 +117,16 @@ Agent EXE를 직접 더블클릭하는 것은 서비스 설치 방법이 아니�
 
 제거: 대상 PC에서 AgentSetup.exe 실행 → [서비스 제거].
 서비스와 방화벽 규칙만 제거하고 프로그램 파일·인증 정보는 보존한다.
-Controller의 목록 삭제는 대상 PC의 Agent 제거와 별개다.
+PowerMaster의 목록 삭제는 대상 PC의 Agent 제거와 별개다.
 이 설치 프로그램은 다른 PC에 원격 접속해서 제거하지 않는다.
 
 ============================================================
-4. Controller 등록·데이터 보관
+4. PowerMaster 등록·데이터 보관
 ============================================================
-1) 관리 PC에서 Controller 폴더의 OfficePower.Controller.exe를 실행한다.
+1) 관리 PC에서 PowerMaster 폴더의 PowerMaster.exe를 실행한다.
 2) [PC 등록] → [인증 파일 가져오기]에서 대상 PC의 JSON을 선택한다.
 3) 이름·현재 IP·유선 랜카드 MAC·브로드캐스트 주소를 확인하고 저장한다.
-4) Controller는 시작할 때 등록된 PC 전체의 연결을 자동 확인한다.
+4) PowerMaster는 시작할 때 등록된 PC 전체의 연결을 자동 확인한다.
 5) 이후 PC를 체크하고 [연결 확인]으로 상태를 다시 확인할 수 있다.
 
 인증 파일 이름 예:
@@ -120,15 +142,15 @@ C:\Program Files\OfficePowerAgent\컴퓨터이름-pairing.json
 최신 Agent는 이전 인증 자료를 유지하며 새 설치 폴더로 옮긴다.
 
 관리 PC의 등록 데이터:
-Controller 실행 파일 옆의 RemoteData\computers.json
+PowerMaster 실행 파일 옆의 RemoteData\computers.json
 폴더는 처음 저장할 때 생성된다.
 
 예:
-D:\OfficePower\Controller\OfficePower.Controller.exe
-D:\OfficePower\Controller\RemoteData\computers.json
+D:\OfficePower\PowerMaster\PowerMaster.exe
+D:\OfficePower\PowerMaster\RemoteData\computers.json
 
 이전 AppData 자료를 옮길 경우:
-- Controller를 종료한다.
+- PowerMaster를 종료한다.
 - Win+R → %LOCALAPPDATA%\OfficePower 를 연다.
 - computers.json을 실행 파일 옆 RemoteData 폴더에 직접 복사한다.
 - 자동 이전 기능은 없다. 기존 파일이 있으면 덮어쓰기 전에 백업한다.
@@ -137,69 +159,42 @@ D:\OfficePower\Controller\RemoteData\computers.json
 RemoteData를 옮겨도 같은 PC·같은 Windows 계정에서만 복호화할 수 있다.
 다른 현장 관리 PC나 다른 계정에서는 PC별 인증 JSON을 다시 가져와 등록한다.
 인증 JSON은 전원 제어 권한이므로 공개 저장소·단체 채팅에 올리지 않는다.
-Controller를 업데이트할 때 RemoteData 폴더를 삭제하지 않는다.
-쓰기 권한이 없는 폴더에서 Controller를 실행하면 저장이 실패할 수 있다.
+PowerMaster를 업데이트할 때 RemoteData 폴더를 삭제하지 않는다.
+쓰기 권한이 없는 폴더에서 PowerMaster를 실행하면 저장이 실패할 수 있다.
 관리 계정이 쓸 수 있는 전용 폴더에 두고 사용한다.
 
 ============================================================
 5. 응답 시간 초과·연결 실패: 가장 먼저 할 점검
 ============================================================
-먼저 관리 PC에서 Field-Tools.cmd를 실행한다.
-실행 후 문제가 있는 대상 PC의 IP를 입력한다. 포트는 자동으로 18765를 사용한다.
+관리 PC에서 PowerMaster-Tools.cmd 메뉴 1을 선택하고 대상 PC IP를 입력한다.
+- TcpTestSucceeded=True: TCP 접속 성공. 앱의 인증·인증서·서비스 응답을 확인한다.
+- PingSucceeded=True, TcpTestSucceeded=False: PC는 응답하지만 서비스 포트 접속 실패.
+- Ping 실패만으로 전원 꺼짐으로 판단하지 않는다. ICMP 차단일 수도 있다.
 
-관리 PC에서 FieldTools\Field-Tools.cmd 더블클릭 → 관리자 권한 승인 → 메뉴 1.
-대상 PC IP를 입력하면 연결 검사 결과가 표시되고 Reports에 저장된다.
+문제가 있는 대상 PC에서 Agent-Tools.cmd 메뉴 1로 전체 진단한다.
+- 서비스 없음: AgentSetup.exe에서 설치한다.
+- Stopped: Agent-Tools.cmd 메뉴 3에서 시작한다. 실패하면 AgentSetup으로 업데이트.
+- Running인데 18765 대기 포트 없음: 잠시 후 재확인하고 서비스·포트 충돌을 확인한다.
+- IP 변경: PowerMaster의 등록 IP를 수정한다.
+- 랜카드 여러 개: 실제 유선 LAN의 IP와 MAC을 확인한다.
 
-확인 항목:
-- TcpTestSucceeded : True → TCP 접속 성공. 인증·인증서·서비스 응답을 추가 확인한다.
-- PingSucceeded : True, TcpTestSucceeded : False
-  → PC는 응답하지만 포트 접속은 실패. 서비스·리스닝·방화벽을 확인한다.
-- Ping 실패만으로 전원이 꺼졌다고 판단하지 않는다. ICMP 차단일 수도 있다.
+실제 사례: 서비스 Running·Ping 성공, 대상 PC 네트워크 Public으로 TCP 접속 실패.
+Agent 방화벽은 Private·Domain 및 LocalSubnet만 허용한다.
+해결: 대상 PC에서 Agent-Tools.cmd 메뉴 2 → 유선 연결 번호 → YES.
+신뢰하는 현장 LAN만 선택한다. 외부망이나 공용 Wi-Fi는 변경하지 않는다.
+도메인 정책이 적용된 PC는 네트워크 담당자에게 확인한다.
+다시 관리 PC에서 PowerMaster-Tools.cmd 메뉴 1 또는 앱의 연결 확인으로 시험한다.
+프로필 변경만을 위해 Agent를 재설치할 필요는 없다.
 
-다음은 문제가 있는 대상 PC에서 Field-Tools.cmd 메뉴 2로 확인한다.
-서비스·네트워크 종류·IP·MAC·대기 포트·방화벽·인증 파일 위치를 한꺼번에 출력한다.
-설정을 바꾸거나 인증키 내용을 출력하지 않는다.
-
-대상 PC에서 FieldTools\Field-Tools.cmd 더블클릭 → 관리자 권한 승인 → 메뉴 2.
-서비스·네트워크·IP·MAC·포트·방화벽·등록 파일 경로를 한꺼번에 확인한다.
-
-판단:
-- 서비스가 없음: AgentSetup.exe에서 설치한다.
-- Stopped: Field-Tools.cmd 메뉴 4에서 시작한다. 실패하면 AgentSetup.exe로 업데이트한다.
-- Running인데 Listen 결과가 없음: 잠시 기다렸다 다시 진단한다.
-  계속 없으면 설치 오류·이벤트 뷰어와 포트 충돌 등을 점검한다.
-- IP가 바뀜: Controller의 등록 IP를 현재 IP로 수정한다.
-- 랜카드가 여러 개: 실제 현장 유선 LAN의 IP·MAC 조합인지 확인한다.
-
-실제 발생했던 사례:
-서비스는 Running, Ping은 성공했지만 대상 PC의 네트워크가 Public이었다.
-현재 Agent 방화벽 규칙은 Private·Domain + LocalSubnet만 허용한다.
-따라서 Public 상태에서는 접속이 차단될 수 있다.
-
-해결: 신뢰하는 사무실·현장 LAN인 경우에만 해당 연결을 Private로 바꾼다.
-대상 PC에서 Field-Tools.cmd 메뉴 3을 실행한다.
-표에서 실제 유선 연결의 InterfaceIndex를 골라 입력하고 YES로 변경을 확인한다.
-공용 Wi-Fi·외부망까지 일괄 변경하지 않는다.
-도메인 정책이 적용된 PC는 현장 네트워크 관리자에게 확인한다.
-
-대상 PC에서 FieldTools\Field-Tools.cmd 실행 → 메뉴 3.
-표에서 실제 유선 LAN의 InterfaceIndex를 입력한다.
-선택한 연결이 신뢰하는 현장 LAN이면 YES를 입력한다. Enter는 취소다.
-다른 연결은 바꾸지 않는다.
-
-변경 후 관리 PC에서 Field-Tools.cmd 메뉴 1을 다시 실행하고 Controller [연결 확인].
-이 프로필 변경만을 위해 Agent를 재설치할 필요는 없다.
-
-기본 통신: HTTPS TCP 18765. WOL 패킷은 UDP 9.
-방화벽 전체를 끄지 말고 해당 규칙과 네트워크 구간을 확인한다.
-여전히 실패하면 VLAN·망 분리·보안 프로그램·무선 클라이언트 격리를 점검한다.
+기본 통신: HTTPS TCP 18765, WOL UDP 9.
+방화벽 전체를 끄지 않는다. VLAN·망 분리·보안 프로그램·무선 격리도 확인한다.
 
 ============================================================
 6. 인증 실패·등록 파일 없음·데이터 읽기 실패
 ============================================================
 [인증 실패 또는 인증서 오류]
 - 대상 PC의 최신 인증 JSON을 [등록 파일 저장]으로 다시 저장한다.
-- Controller에서 해당 PC 등록을 수정해 JSON을 다시 가져온다.
+- PowerMaster에서 해당 PC 등록을 수정해 JSON을 다시 가져온다.
 - 다른 PC의 IP에 연결하고 있지 않은지 확인한다.
 - PC 날짜·시간과 인증서 만료를 확인한다. 인증서는 생성 시 5년 유효하다.
 - 인증 검증을 끄거나 알 수 없는 인증서를 무조건 신뢰하도록 변경하지 않는다.
@@ -208,10 +203,10 @@ Controller를 업데이트할 때 RemoteData 폴더를 삭제하지 않는다.
 - AgentSetup.exe에서 설치가 완료됐는지 확인한다.
 - 복사한 EXE 폴더와 실제 설치 폴더는 다르다.
 - [등록 파일 저장] 버튼을 먼저 사용한다.
-- Field-Tools.cmd 메뉴 2의 마지막 '등록 파일 위치'에서 경로를 확인한다.
+- Agent-Tools.cmd 메뉴 1의 마지막 '등록 파일 위치'에서 경로를 확인한다.
 - 없다면 설치 화면 오류를 확인한다. 오래된 EXE를 복사했다면 배포본을 다시 만든다.
 
-[Controller 등록 파일 읽기·복호화 실패]
+[PowerMaster 등록 파일 읽기·복호화 실패]
 - RemoteData\computers.json 원본을 백업하고 임의로 내용을 편집하지 않는다.
 - 다른 PC·다른 계정에서 복사한 파일인지 확인한다.
 - 다른 PC이면 원래 인증 JSON을 가져와 다시 등록한다.
@@ -225,9 +220,9 @@ Agent 설치만으로 BIOS와 랜카드 설정이 자동 변경되지는 않는�
 
 확인 순서:
 1) 대상 PC의 AC 전원과 유선 랜선을 유지한다.
-2) Controller의 MAC이 유선 랜카드의 MAC인지 확인한다.
-   Field-Tools.cmd 메뉴 2의 랜카드 IP·MAC 출력으로 확인한다.
-3) Controller의 브로드캐스트 주소를 실제 서브넷에 맞춘다.
+2) PowerMaster의 MAC이 유선 랜카드의 MAC인지 확인한다.
+   Agent-Tools.cmd 메뉴 1의 랜카드 IP·MAC 출력으로 확인한다.
+3) PowerMaster의 브로드캐스트 주소를 실제 서브넷에 맞춘다.
    예: IP 192.168.0.21, 마스크 255.255.255.0 → 192.168.0.255
    마스크가 다르면 주소도 달라진다. 모든 현장에 위 주소를 그대로 쓰지 않는다.
 4) BIOS의 WOL·PCI-E/Network Wake 설정을 켠다.
@@ -235,7 +230,7 @@ Agent 설치만으로 BIOS와 랜카드 설정이 자동 변경되지는 않는�
 6) 절전 상태에서 먼저 켜 보고, 종료 상태에서도 시험한다.
    절전에서는 되지만 종료 후 안 되면 S4/S5 설정·빠른 시작·하드웨어 지원을 확인한다.
 
-Controller의 '켜기 요청 전송'은 패킷을 보냈다는 뜻이다.
+PowerMaster의 '켜기 요청 전송'은 패킷을 보냈다는 뜻이다.
 실제 전원 투입·Windows 부팅 성공을 보장하는 응답은 아니다.
 WOL에 응답 확인 프로토콜은 없으므로 본체 상태와 이후 [연결 확인]으로 판단한다.
 
@@ -281,7 +276,7 @@ Settings → Boot:
   패킷 전달·브로드캐스트·랜카드 WOL 반응·스위치 구간 확인.
 - 전원은 바로 켜지지만 BIOS 로고에서 지연:
   PXE 시도 메시지·장치 검사·부팅 우선순위·원격 부팅 소스 확인.
-- Windows 화면까지는 빠르지만 Controller 연결이 늦음:
+- Windows 화면까지는 빠르지만 PowerMaster 연결이 늦음:
   네트워크 준비·Agent 서비스 시작과 방화벽 상태 확인.
 
 네트워크 부팅을 사용하지 않는 PC에서 PXE 대기가 실제 보이면
@@ -299,8 +294,8 @@ Network Boot/PXE를 끄고 로컬 디스크 부팅을 우선하도록 시험할 
 
 계속 30초로 표시되면 구버전 Agent일 수 있다.
 Git Pull → 배포본 재생성 → 대상 PC에서 새 AgentSetup.exe로 업데이트한다.
-Controller만 바꿔서는 대상 PC의 대기 시간이 변경되지 않는다.
-Controller는 종료 응답의 실제 예약 초를 표시한다.
+PowerMaster만 바꿔서는 대상 PC의 대기 시간이 변경되지 않는다.
+PowerMaster는 종료 응답의 실제 예약 초를 표시한다.
 
 이미 종료가 예약됐다는 메시지:
 중복 종료 요청은 2분 동안 거부된다.
@@ -320,11 +315,11 @@ VS 일반 빌드도 예전에 복사해 둔 설치 스크립트를 자동 교체
 예전 CMD 설치를 계속 쓸 때는 최신 CMD·PS1을 함께 교체해야 한다.
 
 [MSB4018 / GenerateBundle / 다른 프로세스에서 파일 사용 중]
-출력 폴더의 Controller 등이 실행 중이라 EXE를 덮어쓸 수 없는 경우다.
-Controller·설치 프로그램을 닫고 VS 디버깅도 중지한 뒤 다시 게시한다.
+출력 폴더의 PowerMaster 등이 실행 중이라 EXE를 덮어쓸 수 없는 경우다.
+PowerMaster·설치 프로그램을 닫고 VS 디버깅도 중지한 뒤 다시 게시한다.
 계속 사용해야 하면 새 출력 폴더로 게시한다.
 
-개발 PC에서 Controller와 설치 프로그램을 종료하고 scripts\Publish-Windows.cmd를 다시 실행한다.
+개발 PC에서 PowerMaster와 설치 프로그램을 종료하고 scripts\Publish-Windows.cmd를 다시 실행한다.
 다른 출력 폴더가 필요한 개발자는 기존 Publish-Windows.ps1의 -OutputRoot 옵션을 사용할 수 있다.
 
 스크립트가 실패한 경우 남아 있는 출력 폴더에 구·신버전이 섞일 수 있다.
@@ -336,7 +331,7 @@ Controller·설치 프로그램을 닫고 VS 디버깅도 중지한 뒤 다시 �
 [설치·파일 저장 권한 오류]
 AgentSetup.exe의 관리자 권한 승인을 확인한다.
 관리되는 PC의 보안 정책이 차단하면 해당 정책 담당자에게 오류를 전달한다.
-Controller의 RemoteData는 현재 사용자가 쓰기 가능한 경로에 둔다.
+PowerMaster의 RemoteData는 현재 사용자가 쓰기 가능한 경로에 둔다.
 
 [아이콘이 예전 것으로 보임]
 최신 배포본으로 EXE를 교체하고 기존 바로가기도 대상 경로를 확인한다.
@@ -351,10 +346,10 @@ Windows 탐색기 아이콘 캐시 때문에 즉시 갱신되지 않을 수 있�
 [ ] IP 변경 방지를 위한 DHCP 예약 또는 관리된 고정 IP 적용.
 [ ] AgentSetup 설치 완료 / OfficePowerAgent Running.
 [ ] 관리 PC에서 TCP 18765 연결 성공.
-[ ] Controller 등록 후 연결 정상.
+[ ] PowerMaster 등록 후 연결 정상.
 [ ] 승인된 시간에 종료 요청·실제 종료 확인.
 [ ] 완전 종료 상태에서 WOL 켜기 확인.
-[ ] 부팅 후 Controller 연결 재확인.
+[ ] 부팅 후 PowerMaster 연결 재확인.
 [ ] 멀티탭·랜선 유지 조건을 현장 담당자에게 안내.
 [ ] RemoteData 백업과 현장별 등록 JSON의 안전한 보관 위치 확인.
 [ ] 문제가 발생하면 PC 기종·오류 문구·서비스·네트워크 프로필·포트 결과 기록.
@@ -366,3 +361,5 @@ Windows 탐색기 아이콘 캐시 때문에 즉시 갱신되지 않을 수 있�
 - Get-Service OfficePowerAgent 결과.
 - 해당 연결의 NetworkCategory와 설치 화면 오류.
 인증 JSON 본문·Token·인증서 개인키·agent-settings.json 내용은 보내지 않는다.
+
+이전 Controller 업데이트: 프로그램 종료 후 기존 RemoteData 폴더를 새 PowerMaster.exe 옆에 직접 복사한다. 같은 PC·같은 Windows 계정에서 사용해야 한다. 이전 배포 폴더는 자동 삭제하지 않는다.

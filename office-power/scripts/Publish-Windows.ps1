@@ -12,26 +12,29 @@ if ([string]::IsNullOrWhiteSpace($scriptDirectory)) { throw 'Run the saved Publi
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) { $OutputRoot = Join-Path $scriptDirectory '..\artifacts' }
 $project = (Resolve-Path (Join-Path $scriptDirectory '..')).Path
 $OutputRoot = [IO.Path]::GetFullPath($OutputRoot)
-$bundle = Join-Path $OutputRoot 'OfficePower-win-x64'
+$bundle = Join-Path $OutputRoot 'PowerMaster-win-x64'
 New-Item -ItemType Directory -Path $bundle -Force | Out-Null
-foreach ($part in @('Agent', 'Controller', 'AgentSetup')) {
+$agentOutput = Join-Path $bundle 'Agent'
+New-Item -ItemType Directory -Path $agentOutput -Force | Out-Null
+foreach ($part in @('PowerMaster', 'AgentSetup')) {
     $csproj = Join-Path $project "src\OfficePower.$part\OfficePower.$part.csproj"
+    $destination = if ($part -eq 'AgentSetup') { Join-Path $bundle '.build-AgentSetup' } else { Join-Path $bundle 'PowerMaster' }
     & dotnet publish $csproj -c Release -r win-x64 --self-contained true `
-        -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o (Join-Path $bundle $part)
+        -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o $destination
     if ($LASTEXITCODE -ne 0) { throw "Publish failed: $part" }
 }
-foreach ($file in @('Install-Agent.ps1', 'Uninstall-Agent.ps1', 'Install-Agent.cmd', 'Start-Controller.cmd')) {
-    Copy-Item -LiteralPath (Join-Path $scriptDirectory $file) -Destination $bundle -Force
+Copy-Item -LiteralPath (Join-Path $bundle '.build-AgentSetup\AgentSetup.exe') -Destination $agentOutput -Force
+Remove-Item -LiteralPath (Join-Path $bundle '.build-AgentSetup') -Recurse -Force
+foreach ($role in @('Agent', 'PowerMaster')) {
+    $roleOutput = Join-Path $bundle $role
+    foreach ($tool in @("$role-Tools.cmd", "$role-Tools.ps1", 'README-KO.txt')) {
+        Copy-Item -LiteralPath (Join-Path $project ("field-tools\$role\" + $tool)) -Destination $roleOutput -Force
+    }
 }
-Copy-Item -LiteralPath (Join-Path $project 'README.md') -Destination $bundle -Force
-Copy-Item -LiteralPath (Join-Path $project 'OfficePower-Field-Guide-KO.txt') -Destination $bundle -Force
-$toolsOutput = Join-Path $bundle 'FieldTools'
-New-Item -ItemType Directory -Path $toolsOutput -Force | Out-Null
-foreach ($tool in @('Field-Tools.cmd', 'Field-Tools.ps1', 'README-KO.txt')) {
-    Copy-Item -LiteralPath (Join-Path $project ('field-tools\' + $tool)) -Destination $toolsOutput -Force
+foreach ($file in @('README.md', 'OfficePower-Field-Guide-KO.txt')) {
+    Copy-Item -LiteralPath (Join-Path $project $file) -Destination $bundle -Force
 }
-Copy-Item -LiteralPath (Join-Path $bundle 'AgentSetup\AgentSetup.exe') -Destination (Join-Path $bundle 'AgentSetup.exe') -Force
-Remove-Item -LiteralPath (Join-Path $bundle 'AgentSetup') -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $scriptDirectory 'Start-PowerMaster.cmd') -Destination $bundle -Force
 Write-Host "Windows folder: $bundle"
-Write-Host 'Target PC: copy AgentSetup.exe only, double-click, then choose Install / Update.'
-Write-Host 'Controller PC: use the Controller folder.'
+Write-Host 'Target PC: copy the Agent folder. Run AgentSetup.exe or Agent-Tools.cmd.'
+Write-Host 'Management PC: copy the PowerMaster folder. Run PowerMaster.exe or PowerMaster-Tools.cmd.'

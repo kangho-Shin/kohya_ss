@@ -74,7 +74,7 @@ public partial class SetupForm : Form
         {
             if (!string.Equals(Path.GetFullPath(dialog.FileName), Path.GetFullPath(SetupOperations.PairingFile), StringComparison.OrdinalIgnoreCase))
                 File.Copy(SetupOperations.PairingFile, dialog.FileName, true);
-            MessageBox.Show(this, "저장했습니다. 관리 PC의 Controller → PC 등록에서 가져오세요.\n이 파일은 전원 제어 권한을 포함하므로 안전하게 전달하세요.", "등록 파일 저장");
+            MessageBox.Show(this, "저장했습니다. 관리 PC의 PowerMaster → PC 등록에서 가져오세요.\n이 파일은 전원 제어 권한을 포함하므로 안전하게 전달하세요.", "등록 파일 저장");
         }
         catch (Exception) { MessageBox.Show(this, "저장하지 못했습니다. 저장할 폴더와 파일 권한을 확인하세요.", "저장 실패"); }
     }

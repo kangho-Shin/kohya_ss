@@ -1,6 +1,6 @@
 using OfficePower.Core;
 
-namespace OfficePower.Controller;
+namespace OfficePower.PowerMaster;
 
 internal static class Program
 {

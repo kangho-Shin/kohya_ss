@@ -20,7 +20,7 @@ jobs:
       - run: ./scripts/Publish-Windows.ps1
       - name: WinForms UI and DPAPI smoke test
         run: |
-          $exe = Join-Path $PWD 'artifacts\OfficePower-win-x64\Controller\OfficePower.Controller.exe'
+          $exe = Join-Path $PWD 'artifacts\PowerMaster-win-x64\PowerMaster\PowerMaster.exe'
           $process = Start-Process -FilePath $exe -ArgumentList '--smoke-test' -PassThru
           if (-not $process.WaitForExit(30000)) { $process.Kill(); throw 'WinForms smoke test timed out.' }
           if ($process.ExitCode -ne 0) { throw 'WinForms UI / DPAPI smoke test failed.' }
@@ -28,5 +28,5 @@ jobs:
         run: ./scripts/Test-Installation.ps1
       - uses: actions/upload-artifact@v4
         with:
-          name: OfficePower-win-x64
-          path: office-power/artifacts/OfficePower-win-x64/
+          name: PowerMaster-win-x64
+          path: office-power/artifacts/PowerMaster-win-x64/

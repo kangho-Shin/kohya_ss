@@ -12,16 +12,6 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
     } catch { Write-Host '관리자 권한 승인이 필요합니다. 다시 실행해 주세요.'; exit 1 }
 }
 
-function Test-RemoteConnection {
-    $address = Read-Host '대상 PC의 IP를 입력하세요'
-    $parsed = $null
-    if (-not [Net.IPAddress]::TryParse($address, [ref]$parsed) -or $parsed.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork) {
-        throw '올바른 IPv4 주소를 입력하세요.'
-    }
-    Test-NetConnection -ComputerName $address -Port 18765 | Format-List
-    Write-Host 'TcpTestSucceeded=True면 포트 연결 성공입니다. Controller에서 연결 확인을 누르세요.'
-}
-
 function Show-TargetDiagnosis {
     Write-Host "`n===== Agent 서비스 ====="
     $service = Get-Service OfficePowerAgent -ErrorAction SilentlyContinue
@@ -70,24 +60,23 @@ function Start-AgentService {
 }
 
 while ($true) {
-    Write-Host "`n========== Office Power 현장 점검 =========="
+    Write-Host "`n========== Agent 대상 PC 점검 =========="
     Write-Host ('현재 PC: ' + $env:COMPUTERNAME)
-    Write-Host '1. [관리 PC에서] 대상 PC 연결 검사 (IP 입력)'
-    Write-Host '2. [대상 PC에서] 서비스/네트워크/방화벽 전체 진단'
-    Write-Host '3. [대상 PC에서] 선택한 Public 연결을 Private로 변경'
-    Write-Host '4. [대상 PC에서] 중지된 Agent 서비스 시작'
-    Write-Host '5. [대상 PC에서] 랜카드 설정 화면 열기 (WOL 설정용)'
-    Write-Host '6. [대상 PC에서] 전원 옵션 화면 열기 (빠른 시작 설정용)'
+    Write-Host '1. 이 PC의 Agent 전체 진단'
+    Write-Host '2. 선택한 Public 연결을 Private로 변경'
+    Write-Host '3. 중지된 Agent 서비스 시작'
+    Write-Host '4. 랜카드 설정 화면 열기 (WOL)'
+    Write-Host '5. 전원 옵션 화면 열기 (빠른 시작)'
     Write-Host '0. 종료'
     $choice = Read-Host '번호 선택'
     if ($choice -eq '0') { break }
-    if ($choice -notin @('1','2','3','4','5','6')) { Write-Host '0~6 중 선택하세요.'; continue }
+    if ($choice -notin @('1','2','3','4','5')) { Write-Host '0~5 중 선택하세요.'; continue }
     $transcribing = $false
     $report = $null
     try {
         # Keep results beside the tools, with a writable fallback selected by the user.
         $reports = Join-Path $PSScriptRoot 'Reports'
-        $reportName = 'OfficePower-' + $env:COMPUTERNAME + '-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0,6) + '.txt'
+        $reportName = 'Agent-' + $env:COMPUTERNAME + '-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0,6) + '.txt'
         try {
             New-Item -ItemType Directory -Path $reports -Force -ErrorAction Stop | Out-Null
             $report = Join-Path $reports $reportName
@@ -102,12 +91,11 @@ while ($true) {
         $transcribing = $true
         Write-Host ('점검 메뉴: ' + $choice + ' / PC: ' + $env:COMPUTERNAME)
         switch ($choice) {
-            '1' { Test-RemoteConnection }
-            '2' { Show-TargetDiagnosis }
-            '3' { Set-TrustedNetwork }
-            '4' { Start-AgentService }
-            '5' { Start-Process (Join-Path $env:SystemRoot 'System32\ncpa.cpl'); Write-Host '유선 랜카드 → 속성 → 구성 → 고급/전원 관리에서 Magic Packet을 확인하세요.' }
-            '6' { Start-Process (Join-Path $env:SystemRoot 'System32\control.exe') -ArgumentList '/name Microsoft.PowerOptions'; Write-Host '전원 단추 작동 설정 → 현재 사용할 수 없는 설정 변경 → 빠른 시작 해제.' }
+            '1' { Show-TargetDiagnosis }
+            '2' { Set-TrustedNetwork }
+            '3' { Start-AgentService }
+            '4' { Start-Process (Join-Path $env:SystemRoot 'System32\ncpa.cpl'); Write-Host '유선 랜카드 → 속성 → 구성에서 Magic Packet을 확인하세요.' }
+            '5' { Start-Process (Join-Path $env:SystemRoot 'System32\control.exe') -ArgumentList '/name Microsoft.PowerOptions'; Write-Host '전원 단추 작동 설정에서 빠른 시작을 해제하세요.' }
         }
     } catch { Write-Host ('작업 실패: ' + $_.Exception.Message) }
     finally {

@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using OfficePower.Core;
 
-namespace OfficePower.Controller;
+namespace OfficePower.PowerMaster;
 
 public partial class MainForm : Form
 {
@@ -157,5 +157,5 @@ public partial class MainForm : Form
     {
         if (busy) { e.Cancel = true; Info("현재 요청이 끝난 뒤 창을 닫아 주세요."); }
     }
-    private void Info(string text) => MessageBox.Show(this, text, "사무실 PC 전원 관리", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    private void Info(string text) => MessageBox.Show(this, text, "PowerMaster", MessageBoxButtons.OK, MessageBoxIcon.Information);
 }

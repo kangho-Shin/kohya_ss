@@ -57,3 +57,10 @@ PC별 `컴퓨터이름-pairing.json` 생성, 재초기화 시 기존 공통 파�
 ## 현장 배치 도구
 
 Field-Tools.cmd/ps1의 메뉴로 연결 검사·대상 PC 진단·선택한 Public 프로필 변경·서비스 시작·설정 화면 열기를 제공한다. 실제 네트워크 명령을 대역으로 바꿔 잘못된 IP/인터페이스 입력 거부, 취소 시 미변경, 지정한 Public 연결만 변경, 도메인 연결 보존을 검증했다. 전체 PowerShell 구문·설치/게시 경로 회귀 검사도 통과했다. 실제 Windows CMD·UAC·네트워크 설정 및 transcript 저장 동작은 Linux에서 실행하지 않았다. 로그는 배포 복사 대상에서 제외한다.
+
+## PowerMaster 및 역할별 점검 도구
+
+- PowerMaster로 프로젝트/EXE를 변경한 전체 Release 빌드 경고·오류 0, 기존 테스트 28개 통과.
+- PowerMaster.exe와 최신 AgentSetup.exe Windows x64 게시 성공. 실제 게시 스크립트의 파일 배치 부분을 실행해 Agent/PowerMaster별 EXE·전용 CMD/PS1·설명을 확인했다. 반대 역할 도구와 Reports 로그는 포함되지 않는다.
+- PowerMaster 도구에 관리자 승격·Agent 변경 함수가 없고, Agent 도구에 관리 PC용 포트 검사 함수가 없는지 검사했다. 입력·취소·선택한 Public 프로필 변경 모의 테스트 및 설치/게시 경로 검사 통과.
+- 실제 Windows UI·UAC·설정 변경은 이 환경에서 실행하지 않았다. 원격 워크플로를 실행하지 않았다.

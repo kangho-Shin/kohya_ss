@@ -1,7 +1,7 @@
 #Requires -RunAsAdministrator
 # Isolated Windows CI validation. NEVER sends /shutdown.
 $ErrorActionPreference = 'Stop'
-$bundle = Join-Path $PSScriptRoot '..\artifacts\OfficePower-win-x64'
+$agentSource = Join-Path $PSScriptRoot '..\src\OfficePower.AgentSetup\obj\embedded-agent\Release'
 $data = Join-Path $env:ProgramFiles 'OfficePowerAgent'
 if (Get-Service OfficePowerAgent -ErrorAction SilentlyContinue) { throw 'This test requires an isolated machine without an existing Office Power service.' }
 
@@ -23,7 +23,7 @@ public static class OfficePowerPinnedProbe {
 '@
 $stage = 'initial installation'
 try {
-    & (Join-Path $bundle 'Install-Agent.ps1')
+    & (Join-Path $PSScriptRoot 'Install-Agent.ps1') -AgentSource $agentSource
     $first = Get-Content -LiteralPath (Join-Path $data ($env:COMPUTERNAME + '-pairing.json')) -Raw | ConvertFrom-Json
     $ready = $false
     $stage = 'pinned HTTPS status from installed service'
@@ -42,7 +42,7 @@ try {
     & icacls.exe $configPath /setowner '*S-1-5-32-545' | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Test ACL setup failed.' }
     $stage = 'reinstallation'
-    & (Join-Path $bundle 'Install-Agent.ps1')
+    & (Join-Path $PSScriptRoot 'Install-Agent.ps1') -AgentSource $agentSource
     $second = Get-Content -LiteralPath (Join-Path $data ($env:COMPUTERNAME + '-pairing.json')) -Raw | ConvertFrom-Json
     if ($first.token -cne $second.token -or $first.certificateSha256 -cne $second.certificateSha256) { throw 'Reinstallation changed credentials.' }
     $stage = 'ownership and DACL verification'
@@ -62,5 +62,5 @@ try {
     Write-Host "::error title=Office Power Windows install ($stage)::$safeMessage"
     throw
 } finally {
-    & (Join-Path $bundle 'Uninstall-Agent.ps1')
+    & (Join-Path $PSScriptRoot 'Uninstall-Agent.ps1')
 }

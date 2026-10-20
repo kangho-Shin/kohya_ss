@@ -1,5 +1,5 @@
 #nullable enable
-namespace OfficePower.Controller;
+namespace OfficePower.PowerMaster;
 
 partial class RegistrationForm
 {

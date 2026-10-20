@@ -94,4 +94,4 @@ Start-Service -Name $serviceName
 (Get-Service -Name $serviceName).WaitForStatus('Running', [TimeSpan]::FromSeconds(30))
 Write-Host 'Installed. Pairing file (contains a secret; transfer securely):'
 Write-Host $pairingPath
-Write-Host 'On the controller PC, import this file using PC registration.'
+Write-Host 'On the PowerMaster PC, import this file using PC registration.'

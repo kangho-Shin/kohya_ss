@@ -1,5 +1,5 @@
 #nullable enable
-namespace OfficePower.Controller;
+namespace OfficePower.PowerMaster;
 
 partial class MainForm
 {
@@ -57,7 +57,7 @@ partial class MainForm
         ((System.ComponentModel.ISupportInitialize)computerSource).BeginInit();
         ((System.ComponentModel.ISupportInitialize)computerGrid).BeginInit();
         SuspendLayout();
-        title.Text = "사무실 PC 전원 관리";
+        title.Text = "PowerMaster · PC 전원 관리";
         title.Name = "title";
         title.Dock = DockStyle.Top;
         title.Height = 64;
@@ -160,7 +160,7 @@ partial class MainForm
         MinimumSize = new Size(950, 500);
         StartPosition = FormStartPosition.CenterScreen;
         Font = new Font("Malgun Gothic", 9F);
-        Text = "사무실 PC 전원 관리";
+        Text = "PowerMaster · PC 전원 관리";
         Name = "MainForm";
         Shown += MainForm_Shown;
         FormClosing += MainForm_FormClosing;

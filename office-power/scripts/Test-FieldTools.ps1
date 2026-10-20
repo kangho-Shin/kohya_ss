@@ -1,11 +1,18 @@
 # Offline regression checks. Never reads or changes the host network/services.
 $ErrorActionPreference = 'Stop'
-$source = Join-Path $PSScriptRoot '..\field-tools\Field-Tools.ps1'
-$tokens = $null; $errors = $null
-$ast = [System.Management.Automation.Language.Parser]::ParseFile($source, [ref]$tokens, [ref]$errors)
-if ($errors.Count -gt 0) { throw 'Field tools PowerShell parse failed.' }
-$functions = $ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
-foreach ($definition in $functions) { . ([scriptblock]::Create($definition.Extent.Text)) }
+foreach ($role in @('Agent', 'PowerMaster')) {
+    $source = Join-Path $PSScriptRoot ("..\field-tools\$role\$role-Tools.ps1")
+    $tokens = $null; $errors = $null
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile($source, [ref]$tokens, [ref]$errors)
+    if ($errors.Count -gt 0) { throw 'Field tools PowerShell parse failed.' }
+    $functions = $ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+    if ($role -eq 'PowerMaster' -and ($functions.Name -contains 'Set-TrustedNetwork' -or $functions.Name -contains 'Start-AgentService')) {
+        throw 'PowerMaster tools must not contain Agent mutations.'
+    }
+    if ($role -eq 'PowerMaster' -and (Get-Content -Raw $source) -match 'RunAs') { throw 'PowerMaster tools must not elevate.' }
+    if ($role -eq 'Agent' -and $functions.Name -contains 'Test-RemoteConnection') { throw 'Agent tools must not contain the management-PC probe.' }
+    foreach ($definition in $functions) { . ([scriptblock]::Create($definition.Extent.Text)) }
+}
 $script:answers = [System.Collections.Generic.Queue[string]]::new()
 $script:changes = [System.Collections.Generic.List[int]]::new()
 $script:profileKind = 'Public'

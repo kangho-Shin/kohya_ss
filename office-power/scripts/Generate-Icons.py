@@ -30,9 +30,9 @@ def draw_icon(name, background, accent):
     return image
 
 
-controller = draw_icon('controller', '#1547A0', '#2176E8')
+powermaster = draw_icon('powermaster', '#1547A0', '#2176E8')
 agent = draw_icon('agent', '#086653', '#0C9B78')
 preview = Image.new('RGB', (640, 320), '#F0F3F8')
-preview.paste(controller, (40, 32), controller)
+preview.paste(powermaster, (40, 32), powermaster)
 preview.paste(agent, (344, 32), agent)
 preview.save(OUTPUT / 'icons-preview.png')

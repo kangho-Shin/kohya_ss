@@ -1,7 +1,7 @@
 using System.Text.Json;
 using OfficePower.Core;
 
-namespace OfficePower.Controller;
+namespace OfficePower.PowerMaster;
 
 public partial class RegistrationForm : Form
 {

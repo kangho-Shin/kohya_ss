@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using OfficePower.Core;
 
-namespace OfficePower.Controller;
+namespace OfficePower.PowerMaster;
 
 public sealed class WindowsSecretProtector : ISecretProtector
 {

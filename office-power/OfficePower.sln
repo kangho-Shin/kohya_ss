@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficePower.Core", "src\Off
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficePower.Agent", "src\OfficePower.Agent\OfficePower.Agent.csproj", "{38F109C7-D675-4F1E-8335-F9D6F2D5C429}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficePower.Controller", "src\OfficePower.Controller\OfficePower.Controller.csproj", "{B88BA8E4-5C5D-4CC7-94F4-31025EA20F13}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficePower.PowerMaster", "src\OfficePower.PowerMaster\OfficePower.PowerMaster.csproj", "{B88BA8E4-5C5D-4CC7-94F4-31025EA20F13}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FADF6A6D-FC81-4948-ADD5-732B260FD069}"
 EndProject
