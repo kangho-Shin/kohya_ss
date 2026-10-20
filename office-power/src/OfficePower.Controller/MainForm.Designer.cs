@@ -139,7 +139,7 @@ partial class MainForm
         shutdownButton.Name = "shutdownButton";
         shutdownButton.Size = new Size(150, 42);
         shutdownButton.Click += ShutdownButton_Click;
-        hint.Text = "켜기: Wake-on-LAN 설정 필요\n끄기: 확인 후 30초 뒤 종료";
+        hint.Text = "켜기: Wake-on-LAN 설정 필요\n끄기: 확인 후 10초 뒤 종료";
         hint.Name = "hint";
         hint.AutoSize = true;
         hint.Margin = new Padding(16, 3, 0, 0);

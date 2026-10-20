@@ -18,7 +18,7 @@ public class AgentTests
         public bool Fail;
         public Task ScheduleAsync(int seconds, CancellationToken cancellation)
         {
-            Assert.Equal(30, seconds);
+            Assert.Equal(10, seconds);
             if (Fail) throw new IOException("test OS error");
             Interlocked.Increment(ref Calls);
             return Task.CompletedTask;
@@ -60,7 +60,7 @@ public class AgentTests
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => client.GetStatusAsync(pc with { Token = Tokens.Create() }));
         await Assert.ThrowsAsync<HttpRequestException>(() => client.GetStatusAsync(pc with { CertificateSha256 = new string('0',64) }));
         var reply = await client.ShutdownAsync(pc);
-        Assert.Equal(30, reply.DelaySeconds);
+        Assert.Equal(10, reply.DelaySeconds);
         Assert.Equal("scheduled", reply.State);
         await Assert.ThrowsAsync<InvalidOperationException>(() => client.ShutdownAsync(pc));
         Assert.Equal(1, fake.Calls);

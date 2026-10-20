@@ -7,6 +7,7 @@ public interface IShutdownExecutor
 
 public sealed class ShutdownCoordinator(IShutdownExecutor executor, TimeProvider? clock = null)
 {
+    public const int DelaySeconds = 10;
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly TimeProvider time = clock ?? TimeProvider.System;
     private long scheduledUntil;
@@ -18,7 +19,7 @@ public sealed class ShutdownCoordinator(IShutdownExecutor executor, TimeProvider
         try
         {
             if (IsScheduled) return false;
-            await executor.ScheduleAsync(30, cancellation);
+            await executor.ScheduleAsync(DelaySeconds, cancellation);
             // A blocked/cancelled OS shutdown must not lock this agent forever.
             Interlocked.Exchange(ref scheduledUntil, time.GetUtcNow().AddMinutes(2).UtcTicks);
             return true;

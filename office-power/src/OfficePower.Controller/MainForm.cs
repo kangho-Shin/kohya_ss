@@ -140,7 +140,7 @@ public partial class MainForm : Form
     {
         var rows = SelectedRows();
         if (rows.Length == 0) return;
-        if (MessageBox.Show(this, $"선택한 {rows.Length}대에 30초 후 종료를 요청할까요?\n\n" +
+        if (MessageBox.Show(this, $"선택한 {rows.Length}대에 10초 후 종료를 요청할까요?\n\n" +
             string.Join("\n", rows.Take(10).Select(r => $"• {r.Name} ({r.Ip})")) +
             "\n\n작업을 먼저 저장하세요. 저장하지 않은 앱은 종료를 막을 수 있습니다.", "PC 종료 확인",
             MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
@@ -149,7 +149,7 @@ public partial class MainForm : Form
         if (rows.Any(r => IsLocal(r.Record)) && MessageBox.Show(this,
             "관리 프로그램이 실행 중인 이 PC도 선택되었습니다. 정말 종료할까요?", "현재 PC 종료",
             MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
-        await Execute(rows, async pc => { await client.ShutdownAsync(pc); return "종료 예약됨 (30초)"; }, IsLocal);
+        await Execute(rows, async pc => { var reply = await client.ShutdownAsync(pc); return $"종료 예약됨 ({reply.DelaySeconds}초)"; }, IsLocal);
     }
 
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)

@@ -11,7 +11,7 @@ public sealed class WindowsShutdown : IShutdownExecutor
         cancellation.ThrowIfCancellationRequested();
         EnableShutdownPrivilege();
         // Explicit false: do not force applications closed. shutdown.exe /t would imply force.
-        if (!InitiateSystemShutdownEx(null, "사무실 관리자 요청: 30초 후 종료합니다. 작업을 저장하세요.",
+        if (!InitiateSystemShutdownEx(null, $"사무실 관리자 요청: {seconds}초 후 종료합니다. 작업을 저장하세요.",
             (uint)seconds, false, false, 0x80000000 | 0x00040000))
             throw new Win32Exception(Marshal.GetLastWin32Error());
         return Task.CompletedTask;

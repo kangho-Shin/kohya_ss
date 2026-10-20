@@ -47,7 +47,7 @@ public static class AgentHost
             {
                 // Once accepted, client disconnection must not silently cancel an OS request.
                 bool scheduled = await coordinator.ScheduleAsync(CancellationToken.None);
-                return scheduled ? Results.Json(new ShutdownReply("scheduled", 30), statusCode: 202) : Results.Conflict();
+                return scheduled ? Results.Json(new ShutdownReply("scheduled", ShutdownCoordinator.DelaySeconds), statusCode: 202) : Results.Conflict();
             }
             catch (Exception)
             {
