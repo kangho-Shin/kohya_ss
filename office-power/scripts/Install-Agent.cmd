@@ -1,8 +1,8 @@
 @echo off
 cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dp0Install-Agent.ps1"
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dp0Install-Agent.ps1" -AgentSource "%~dp0Agent"
 if errorlevel 1 (
-  echo Installation failed. Run this file as administrator and read the error above.
+  echo Installation failed. Read the specific error above. Administrator privileges are required.
   pause
   exit /b 1
 )

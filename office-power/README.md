@@ -49,6 +49,16 @@
 - 인증 파일은 안전하게 전달하고 관리 앱에 등록한 뒤 전달용 사본을 삭제하거나 보호해 보관하세요. 인증서는 5년 유효하며 교체 시 인증 파일을 다시 가져와야 합니다.
 - 다시 설치하면 기존 인증키를 유지합니다. 제거는 관리자 PowerShell에서 `Uninstall-Agent.ps1`을 실행하며 서비스·방화벽만 제거하고 파일과 인증 자료는 보존합니다.
 
+### 설치 중 Join-Path의 Path가 비었다는 오류
+
+이전 설치 파일이 매개 변수 기본값에서 스크립트 폴더를 찾지 못한 경우입니다. 최신 `Install-Agent.ps1`과 `Install-Agent.cmd`를 함께 복사한 뒤 관리자 권한으로 실행하세요. 이미 받은 파일로 진행하려면 관리자 PowerShell에서 Agent 폴더를 명시합니다.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "C:\PowerAgent\Install-Agent.ps1" -AgentSource "C:\PowerAgent\Agent"
+```
+
+`C:\PowerAgent\Agent\OfficePower.Agent.exe`가 있어야 하며, 실제 폴더가 다르면 `-AgentSource`를 그 폴더로 바꾸세요. 스크립트 본문을 콘솔에 붙여넣지 말고 저장된 `.ps1` 파일을 실행합니다.
+
 ## 소스에서 빌드하기
 
 **Visual Studio 2022 17.11 이상**에서 `OfficePower.sln`을 여세요. Visual Studio Installer의 **.NET 데스크톱 개발**과 **ASP.NET 및 웹 개발** 워크로드를 설치하세요. [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)도 필요하며 `global.json`은 SDK 8.0.426 이상 같은 패치 계열을 사용합니다.

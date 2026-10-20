@@ -1,7 +1,16 @@
 [CmdletBinding()]
-param([string]$OutputRoot = (Join-Path $PSScriptRoot '..\artifacts'))
+param([string]$OutputRoot)
 $ErrorActionPreference = 'Stop'
-$project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$scriptDirectory = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($scriptDirectory) -and -not [string]::IsNullOrWhiteSpace($PSCommandPath)) {
+    $scriptDirectory = Split-Path -Parent $PSCommandPath
+}
+if ([string]::IsNullOrWhiteSpace($scriptDirectory) -and -not [string]::IsNullOrWhiteSpace($MyInvocation.MyCommand.Path)) {
+    $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+if ([string]::IsNullOrWhiteSpace($scriptDirectory)) { throw 'Run the saved Publish-Windows.ps1 file using -File.' }
+if ([string]::IsNullOrWhiteSpace($OutputRoot)) { $OutputRoot = Join-Path $scriptDirectory '..\artifacts' }
+$project = (Resolve-Path (Join-Path $scriptDirectory '..')).Path
 $OutputRoot = [IO.Path]::GetFullPath($OutputRoot)
 $bundle = Join-Path $OutputRoot 'OfficePower-win-x64'
 New-Item -ItemType Directory -Path $bundle -Force | Out-Null
@@ -12,7 +21,7 @@ foreach ($part in @('Agent', 'Controller')) {
     if ($LASTEXITCODE -ne 0) { throw "Publish failed: $part" }
 }
 foreach ($file in @('Install-Agent.ps1', 'Uninstall-Agent.ps1', 'Install-Agent.cmd', 'Start-Controller.cmd')) {
-    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination $bundle -Force
+    Copy-Item -LiteralPath (Join-Path $scriptDirectory $file) -Destination $bundle -Force
 }
 Copy-Item -LiteralPath (Join-Path $project 'README.md') -Destination $bundle -Force
 $zip = Join-Path $OutputRoot 'OfficePower-win-x64.zip'

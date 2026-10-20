@@ -1,7 +1,21 @@
 #Requires -RunAsAdministrator
 [CmdletBinding()]
-param([string]$AgentSource = (Join-Path $PSScriptRoot 'Agent'))
+param([string]$AgentSource)
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($AgentSource)) {
+    $scriptDirectory = $PSScriptRoot
+    if ([string]::IsNullOrWhiteSpace($scriptDirectory) -and -not [string]::IsNullOrWhiteSpace($PSCommandPath)) {
+        $scriptDirectory = Split-Path -Parent $PSCommandPath
+    }
+    if ([string]::IsNullOrWhiteSpace($scriptDirectory) -and -not [string]::IsNullOrWhiteSpace($MyInvocation.MyCommand.Path)) {
+        $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
+    }
+    if ([string]::IsNullOrWhiteSpace($scriptDirectory)) {
+        throw 'Cannot determine the script folder. Run the saved .ps1 file with -File or provide -AgentSource with the full Agent folder path.'
+    }
+    $AgentSource = Join-Path $scriptDirectory 'Agent'
+}
+$AgentSource = [IO.Path]::GetFullPath($AgentSource)
 $serviceName = 'OfficePowerAgent'
 $installDir = Join-Path $env:ProgramFiles 'OfficePowerAgent'
 $dataDir = Join-Path $env:ProgramData 'OfficePowerAgent'
