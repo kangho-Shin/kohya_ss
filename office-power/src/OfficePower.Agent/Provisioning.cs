@@ -40,7 +40,7 @@ public static class Provisioning
             ?? throw new InvalidDataException("서비스 설정이 없습니다.");
         if (settings.Version != 1 || settings.Token.Length != 64 || !settings.Token.All(Uri.IsHexDigit) || settings.Port != 18765)
             throw new InvalidDataException("서비스 설정이 올바르지 않습니다.");
-        var cert = X509CertificateLoader.LoadPkcs12FromFile(Path.Combine(directory, "server.pfx"), settings.PfxPassword,
+        var cert = new X509Certificate2(Path.Combine(directory, "server.pfx"), settings.PfxPassword,
             // Schannel cannot serve TLS with ephemeral keys. Without PersistKeySet,
             // the temporary machine key container is cleaned when the cert is disposed.
             OperatingSystem.IsWindows() ? X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.EphemeralKeySet);

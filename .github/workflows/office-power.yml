@@ -24,7 +24,7 @@ jobs:
         with:
           global-json-file: office-power/global.json
       - run: dotnet test tests/OfficePower.Tests/OfficePower.Tests.csproj -c Release --nologo
-      - run: dotnet build OfficePower.slnx -c Release --nologo
+      - run: dotnet build OfficePower.sln -c Release --nologo
       - run: ./scripts/Publish-Windows.ps1
       - name: Validate installer and private-key ACLs on Windows
         run: ./scripts/Test-Installation.ps1

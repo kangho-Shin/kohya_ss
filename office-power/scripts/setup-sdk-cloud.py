@@ -3,6 +3,9 @@ import hashlib
 import json
 from pathlib import Path
 import tarfile
+import shutil
+import tempfile
+import uuid
 import urllib.request
 
 project = Path(__file__).resolve().parent.parent
@@ -11,7 +14,8 @@ root = Path('/workspace/.dotnet')
 if (root / 'sdk' / version / 'dotnet.dll').is_file():
     print(f'.NET SDK {version} already installed')
     raise SystemExit(0)
-metadata = 'https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json'
+channel = '.'.join(version.split('.')[:2])
+metadata = f'https://builds.dotnet.microsoft.com/dotnet/release-metadata/{channel}/releases.json'
 with urllib.request.urlopen(metadata, timeout=60) as response:
     releases = json.load(response)['releases']
 sdk = next(s for release in releases for s in release.get('sdks', [release['sdk']]) if s['version'] == version)
@@ -24,6 +28,17 @@ with archive.open('rb') as file:
     if hashlib.file_digest(file, 'sha512').hexdigest().lower() != asset['hash'].lower():
         raise RuntimeError('Official SDK SHA-512 mismatch; refusing installation')
 root.mkdir(parents=True, exist_ok=True)
-with tarfile.open(archive) as file:
-    file.extractall(root, filter='data')
+with tempfile.TemporaryDirectory(dir='/workspace', prefix='.office-sdk-stage-') as stage_name:
+    stage = Path(stage_name)
+    with tarfile.open(archive) as file:
+        file.extractall(stage, filter='data')
+    for source in stage.rglob('*'):
+        destination = root / source.relative_to(stage)
+        if source.is_dir():
+            destination.mkdir(parents=True, exist_ok=True)
+        elif source.is_file():
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            temporary = destination.with_name(destination.name + '.' + uuid.uuid4().hex + '.tmp')
+            shutil.copy2(source, temporary)
+            temporary.replace(destination)
 print(f'.NET SDK {version}: SHA-512 verified and installed')

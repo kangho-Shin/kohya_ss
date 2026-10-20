@@ -2,7 +2,7 @@
 
 같은 사무실 LAN에 있는 Windows PC 여러 대를 등록하고 켜거나 끄는 C# 프로젝트입니다.
 
-WPF 관리 프로그램과 Windows 서비스 에이전트를 제공합니다. .NET 10 LTS / C# 프로젝트이며 기존 얼굴 교체 프로그램과 별개입니다.
+WPF 관리 프로그램과 Windows 서비스 에이전트를 제공합니다. **Visual Studio 2022 / .NET 8 / C# 12** 프로젝트이며 기존 얼굴 교체 프로그램과 별개입니다.
 
 - 관리자 프로그램: PC 이름·IP·MAC 등록, 선택한 PC 켜기·끄기.
 - 대상 PC: 자동 실행 Windows 서비스 설치.
@@ -51,11 +51,15 @@ WPF 관리 프로그램과 Windows 서비스 에이전트를 제공합니다. .N
 
 ## 소스에서 빌드하기
 
-[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)를 설치하고 이 폴더에서 실행합니다. `global.json`의 SDK 10.0.402 이상 같은 패치 계열이 필요합니다.
+**Visual Studio 2022 17.11 이상**에서 `OfficePower.sln`을 여세요. Visual Studio Installer의 **.NET 데스크톱 개발**과 **ASP.NET 및 웹 개발** 워크로드를 설치하세요. [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)도 필요하며 `global.json`은 SDK 8.0.426 이상 같은 패치 계열을 사용합니다.
+
+솔루션 탐색기에서 **OfficePower.Controller → 시작 프로젝트로 설정 → F5**로 관리 화면을 실행합니다. 에이전트는 서비스용이므로 대상 PC의 설치 스크립트로 설치합니다. 테스트 탐색기에서 OfficePower.Tests를 실행할 수 있으며 실제 종료는 테스트하지 않습니다.
+
+터미널에서 빌드할 때는 이 폴더에서 실행합니다.
 
 ```powershell
 dotnet test tests/OfficePower.Tests/OfficePower.Tests.csproj -c Release
-dotnet build OfficePower.slnx -c Release
+dotnet build OfficePower.sln -c Release
 .\scripts\Publish-Windows.ps1
 ```
 

@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="src/OfficePower.Core/OfficePower.Core.csproj" />
-  <Project Path="src/OfficePower.Agent/OfficePower.Agent.csproj" />
-  <Project Path="src/OfficePower.Controller/OfficePower.Controller.csproj" />
-  <Project Path="tests/OfficePower.Tests/OfficePower.Tests.csproj" />
-</Solution>
