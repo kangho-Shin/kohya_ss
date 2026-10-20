@@ -16,6 +16,7 @@ partial class MainForm
     private ToolStripButton deleteButton = null!;
     private ToolStripButton allButton = null!;
     private ToolStripButton statusButton = null!;
+    private ToolStripButton cancelStatusButton = null!;
     private Button wakeButton = null!;
     private Button shutdownButton = null!;
     private Label hint = null!;
@@ -46,6 +47,7 @@ partial class MainForm
         deleteButton = new ToolStripButton();
         allButton = new ToolStripButton();
         statusButton = new ToolStripButton();
+        cancelStatusButton = new ToolStripButton();
         wakeButton = new Button();
         shutdownButton = new Button();
         hint = new Label();
@@ -63,7 +65,7 @@ partial class MainForm
         title.Height = 64;
         title.Padding = new Padding(16, 16, 0, 0);
         title.Font = new Font("Malgun Gothic", 18F, FontStyle.Bold);
-        toolbar.Items.AddRange(new ToolStripItem[] { addButton, editButton, deleteButton, new ToolStripSeparator(), allButton, statusButton });
+        toolbar.Items.AddRange(new ToolStripItem[] { addButton, editButton, deleteButton, new ToolStripSeparator(), allButton, statusButton, cancelStatusButton });
         toolbar.Name = "toolbar";
         toolbar.GripStyle = ToolStripGripStyle.Hidden;
         toolbar.Padding = new Padding(10, 4, 0, 4);
@@ -83,6 +85,10 @@ partial class MainForm
         statusButton.Text = "연결 확인";
         statusButton.Name = "statusButton";
         statusButton.Click += StatusButton_Click;
+        cancelStatusButton.Text = "연결 확인 취소";
+        cancelStatusButton.Name = "cancelStatusButton";
+        cancelStatusButton.Enabled = false;
+        cancelStatusButton.Click += CancelStatusButton_Click;
         computerGrid.Dock = DockStyle.Fill;
         computerGrid.Name = "computerGrid";
         computerGrid.DataSource = computerSource;

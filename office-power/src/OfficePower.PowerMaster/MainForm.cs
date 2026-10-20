@@ -13,6 +13,8 @@ public partial class MainForm : Form
     private readonly PowerClient client = new();
     private bool busy;
     private bool loadFailed;
+    private CancellationTokenSource? connectionCancellation;
+    private bool closeAfterCheck;
 
     public MainForm()
     {
@@ -40,13 +42,16 @@ public partial class MainForm : Form
 
         // Startup checks every saved PC without changing power-action selection.
         // Keep network failures separate from registration-file loading failures.
-        if (!loadFailed) await Execute(computers.ToArray(), GetConnectionStatusAsync);
+        if (!loadFailed) await CheckConnections(computers.ToArray());
     }
 
     private void SetBusy(bool value)
     {
         busy = value;
-        toolbar.Enabled = powerPanel.Enabled = computerGrid.Enabled = !value && !loadFailed;
+        toolbar.Enabled = !loadFailed;
+        foreach (ToolStripItem item in toolbar.Items) item.Enabled = !value && !loadFailed;
+        cancelStatusButton.Enabled = value && connectionCancellation is not null;
+        powerPanel.Enabled = computerGrid.Enabled = !value && !loadFailed;
         UseWaitCursor = value;
     }
 
@@ -128,14 +133,70 @@ public partial class MainForm : Form
         return "켜기 요청 전송 (부팅 미확인)";
     });
 
-    private async Task<string> GetConnectionStatusAsync(PcRecord pc)
+    private async Task<string> GetConnectionStatusAsync(PcRecord pc, CancellationToken cancellation)
     {
-        var status = await client.GetStatusAsync(pc);
+        var status = await client.GetStatusAsync(pc, cancellation);
         return status.State == "shutdown-scheduled" ? "연결됨 · 종료 예약 중" : "연결됨 · 서비스 정상";
     }
 
     private async void StatusButton_Click(object? sender, EventArgs e) =>
-        await Execute(SelectedRows(), GetConnectionStatusAsync);
+        await CheckConnections(SelectedRows());
+
+    private void CancelStatusButton_Click(object? sender, EventArgs e)
+    {
+        connectionCancellation?.Cancel();
+        cancelStatusButton.Enabled = false;
+        statusLabel.Text = "연결 확인 취소 중…";
+    }
+
+    private async Task CheckConnections(PcRow[] rows)
+    {
+        if (rows.Length == 0 || busy) return;
+        using var cancellation = new CancellationTokenSource();
+        connectionCancellation = cancellation;
+        SetBusy(true);
+        var byId = new Dictionary<Guid, PcRow>();
+        var completed = new HashSet<Guid>();
+        int online = 0, failed = 0;
+        void ApplyResult(PcResult result)
+        {
+            if (!completed.Add(result.Id)) return;
+            byId[result.Id].Status = result.Message;
+            if (result.Success) online++; else failed++;
+            statusLabel.Text = $"연결 확인 {completed.Count}/{rows.Length}대 · 연결 {online}대 / 실패 {failed}대";
+        }
+        var progress = new Progress<PcResult>(result =>
+        {
+            // Ignore queued callbacks after cancellation/completion or a later check.
+            if (ReferenceEquals(connectionCancellation, cancellation) && !IsDisposed) ApplyResult(result);
+        });
+        try
+        {
+            foreach (var row in rows)
+            {
+                if (!byId.TryAdd(row.Record.Id, row)) throw new InvalidDataException("중복된 PC 등록입니다.");
+                row.Status = "연결 확인 중…";
+            }
+            statusLabel.Text = $"{rows.Length}대 연결 확인 중…";
+            var results = await ConnectionChecks.RunAsync(rows.Select(row => row.Record), GetConnectionStatusAsync, progress, cancellation.Token);
+            // Progress callbacks are queued on the UI thread; also apply any still queued results.
+            foreach (var result in results) ApplyResult(result);
+            foreach (var row in rows.Where(row => !completed.Contains(row.Record.Id)))
+                row.Status = "확인 취소 (전원 상태 미확인)";
+            statusLabel.Text = $"연결 확인 {(cancellation.IsCancellationRequested ? "취소" : "완료")} · 연결 {online}대 / 실패 {failed}대 / 미확인 {rows.Length - completed.Count}대";
+        }
+        catch (Exception)
+        {
+            foreach (var row in rows.Where(row => !completed.Contains(row.Record.Id))) row.Status = "확인 실패 (전원 상태 미확인)";
+            statusLabel.Text = "연결 확인 오류. 등록 정보와 네트워크를 확인하세요.";
+        }
+        finally
+        {
+            connectionCancellation = null;
+            SetBusy(false);
+            if (closeAfterCheck) Close();
+        }
+    }
 
     private async void ShutdownButton_Click(object? sender, EventArgs e)
     {
@@ -155,6 +216,13 @@ public partial class MainForm : Form
 
     private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
+        if (connectionCancellation is not null)
+        {
+            e.Cancel = true;
+            closeAfterCheck = true;
+            connectionCancellation.Cancel();
+            return;
+        }
         if (busy) { e.Cancel = true; Info("현재 요청이 끝난 뒤 창을 닫아 주세요."); }
     }
     private void Info(string text) => MessageBox.Show(this, text, "PowerMaster", MessageBoxButtons.OK, MessageBoxIcon.Information);
