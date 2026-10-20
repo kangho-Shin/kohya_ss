@@ -23,13 +23,18 @@ public class ProvisioningTests
             File.WriteAllText(executable, "test executable placeholder");
             Provisioning.Initialize(directory);
             Assert.Equal("test executable placeholder", File.ReadAllText(executable));
-            Assert.True(File.Exists(Path.Combine(directory, "pairing.json")));
+            Assert.True(File.Exists(Path.Combine(directory, Environment.MachineName + "-pairing.json")));
+            File.Copy(Provisioning.PairingPath(directory), Path.Combine(directory, "pairing.json"));
             var (first, cert) = Provisioning.Load(directory);
             cert.Dispose();
             Provisioning.Initialize(directory);
             var (second, cert2) = Provisioning.Load(directory);
             cert2.Dispose();
             Assert.Equal(first.Token, second.Token);
+            Assert.False(File.Exists(Path.Combine(directory, "pairing.json")));
+            var pairing = JsonSerializer.Deserialize<PairingInfo>(File.ReadAllText(Provisioning.PairingPath(directory)), JsonFormat.Options)!;
+            Assert.Equal(Environment.MachineName, pairing.Name);
+            Assert.Equal(first.Token, pairing.Token);
         }
         finally { Directory.Delete(directory, true); }
     }

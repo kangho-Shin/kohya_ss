@@ -15,7 +15,7 @@ public static class Program
                 if (!Directory.Exists(directory)) throw new IOException("관리자 설치 스크립트를 먼저 실행하세요.");
                 Provisioning.MigrateLegacyData(directory, Provisioning.LegacyDirectory);
                 Provisioning.Initialize(directory);
-                Console.WriteLine("초기화 완료. 인증 파일: " + Path.Combine(directory, "pairing.json"));
+                Console.WriteLine("초기화 완료. 인증 파일: " + Provisioning.PairingPath(directory));
                 return 0;
             }
             if (args.Length != 0) throw new ArgumentException("지원하지 않는 실행 인자입니다.");

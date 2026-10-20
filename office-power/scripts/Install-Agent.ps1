@@ -89,5 +89,5 @@ New-NetFirewallRule -Name 'OfficePowerAgent-LAN' -DisplayName 'Office Power Agen
 Start-Service -Name $serviceName
 (Get-Service -Name $serviceName).WaitForStatus('Running', [TimeSpan]::FromSeconds(30))
 Write-Host 'Installed. Pairing file (contains a secret; transfer securely):'
-Write-Host (Join-Path $dataDir 'pairing.json')
+Write-Host (Join-Path $dataDir ($env:COMPUTERNAME + '-pairing.json'))
 Write-Host 'On the controller PC, import this file using PC registration.'

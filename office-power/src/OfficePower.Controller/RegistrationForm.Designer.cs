@@ -40,7 +40,7 @@ partial class RegistrationForm
         saveButton = new Button();
         cancelButton = new Button();
         SuspendLayout();
-        title.Text = "대상 PC의 pairing.json을 가져와 등록하세요.";
+        title.Text = "대상 PC의 컴퓨터이름-pairing.json을 가져와 등록하세요.";
         title.Name = "title";
         title.Location = new Point(20, 18);
         title.Size = new Size(480, 24);

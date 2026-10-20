@@ -14,7 +14,7 @@
 1. GitHub **Code → Download ZIP**으로 소스를 받습니다. ZIP의 **속성 → 차단 해제**가 있다면 출처를 확인한 후 해제하고 압축을 풉니다. VS2022에서 `office-power\OfficePower.sln`을 열고 아래 **소스에서 빌드하기** 절차로 `OfficePower-win-x64.zip`을 만드세요. 기존 v0.1.0 릴리스는 이전 UI 버전이며 현재 WinForms 소스와 다릅니다.
 2. 생성한 실행용 ZIP을 PC마다 옮기고 압축을 풉니다. **Code → Download ZIP은 소스 코드**이므로 실행용 ZIP과 다릅니다.
 3. 관리할 대상 PC마다 **Install-Agent.cmd → 우클릭 → 관리자 권한으로 실행**합니다. 현재 PC의 설정을 바꾸므로 대상 PC에서만 실행하세요.
-4. 설치가 끝나면 대상 PC의 `C:\Program Files\OfficePowerAgent\pairing.json`을 관리자 권한으로 복사해 관리 PC로 안전하게 옮깁니다. 이 파일에는 해당 PC를 끌 수 있는 인증키가 있으므로 GitHub·공용 폴더·채팅에 올리지 마세요.
+4. 설치가 끝나면 대상 PC의 `C:\Program Files\OfficePowerAgent\컴퓨터이름-pairing.json`을 관리자 권한으로 복사해 관리 PC로 안전하게 옮깁니다. 이 파일에는 해당 PC를 끌 수 있는 인증키가 있으므로 GitHub·공용 폴더·채팅에 올리지 마세요.
 5. 관리 PC에서는 **Start-Controller.cmd** 또는 `Controller\OfficePower.Controller.exe`를 실행합니다. 관리자 권한은 필요 없습니다.
 6. **PC 등록 → 인증 파일 가져오기**로 대상 PC의 파일을 선택합니다. 이름·IP·유선 랜카드 MAC 주소를 확인한 뒤 저장합니다. 다중 랜카드/VPN이 있으면 실제 사무실 망의 IP와 유선 MAC으로 수정하세요.
 7. 목록의 체크박스를 선택하고 **연결 확인**을 누릅니다. 서비스 정상 연결을 확인한 뒤 켜기·끄기를 사용하세요.
@@ -44,7 +44,7 @@
 - PC마다 무작위 256비트 인증키와 자체 서명 TLS 인증서를 생성합니다. 관리 앱은 가져온 인증서의 SHA-256 지문을 고정해서 검증하며 다른 인증서와 잘못된 인증키를 거부합니다.
 - 대상 서비스는 `OfficePowerAgent` 이름으로 자동 시작하며 LocalSystem 계정으로 실행합니다. 임의 명령·파일 전송·화면 제어 기능은 없습니다.
 - **HTTPS TCP 18765**, 방화벽 **Private/Domain 프로필 + LocalSubnet**만 허용합니다. 사무실 네트워크 프로필이 공용이면 회사 정책에 맞게 관리자에게 확인하세요. 인터넷에 포트를 개방하지 마세요.
-- 대상 PC 설치 위치: `C:\Program Files\OfficePowerAgent`. `pairing.json`과 인증 자료는 설치된 `OfficePower.Agent.exe`와 같은 폴더에 저장합니다 (SYSTEM·Administrators 전용).
+- 대상 PC 설치 위치: `C:\Program Files\OfficePowerAgent`. `컴퓨터이름-pairing.json`과 인증 자료는 설치된 `OfficePower.Agent.exe`와 같은 폴더에 저장합니다 (SYSTEM·Administrators 전용).
 - 관리 PC 등록 목록: `%LOCALAPPDATA%\OfficePower\computers.json`. 인증키는 Windows 사용자 DPAPI로 암호화되므로 다른 계정·컴퓨터에 이 파일만 복사해서 쓸 수 없습니다.
 - 인증 파일은 안전하게 전달하고 관리 앱에 등록한 뒤 전달용 사본을 삭제하거나 보호해 보관하세요. 인증서는 5년 유효하며 교체 시 인증 파일을 다시 가져와야 합니다.
 - 수정된 Agent를 다시 빌드·설치해야 새 저장 위치가 적용됩니다. 이전 버전의 ProgramData 인증 자료는 인증키·인증서를 유지해 실행 파일 폴더로 복사하며 원본도 보존합니다. 다시 설치하면 기존 인증키를 유지합니다. 제거는 관리자 PowerShell에서 `Uninstall-Agent.ps1`을 실행하며 서비스·방화벽만 제거하고 파일과 인증 자료는 보존합니다.
@@ -88,3 +88,5 @@ dotnet build OfficePower.sln -c Release
 [설계와 검증 범위](docs/design.md) · [구현 계획](docs/implementation-plan.md)
 
 상위 폴더의 얼굴 교체 프로그램과는 별도 프로젝트입니다.
+
+인증 파일 이름에는 생성한 PC의 컴퓨터 이름이 붙습니다. 예: `OFFICE-PC01-pairing.json`, `OFFICE-PC02-pairing.json`. 파일 내부의 PC 이름·IP·MAC도 등록 시 표시합니다. 이전 `pairing.json`은 재설치 시 새 이름으로 다시 생성하며 인증키는 유지합니다.

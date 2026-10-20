@@ -24,7 +24,7 @@ public static class OfficePowerPinnedProbe {
 $stage = 'initial installation'
 try {
     & (Join-Path $bundle 'Install-Agent.ps1')
-    $first = Get-Content -LiteralPath (Join-Path $data 'pairing.json') -Raw | ConvertFrom-Json
+    $first = Get-Content -LiteralPath (Join-Path $data ($env:COMPUTERNAME + '-pairing.json')) -Raw | ConvertFrom-Json
     $ready = $false
     $stage = 'pinned HTTPS status from installed service'
     for ($i=0; $i -lt 15; $i++) {
@@ -43,7 +43,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Test ACL setup failed.' }
     $stage = 'reinstallation'
     & (Join-Path $bundle 'Install-Agent.ps1')
-    $second = Get-Content -LiteralPath (Join-Path $data 'pairing.json') -Raw | ConvertFrom-Json
+    $second = Get-Content -LiteralPath (Join-Path $data ($env:COMPUTERNAME + '-pairing.json')) -Raw | ConvertFrom-Json
     if ($first.token -cne $second.token -or $first.certificateSha256 -cne $second.certificateSha256) { throw 'Reinstallation changed credentials.' }
     $stage = 'ownership and DACL verification'
     $acl = Get-Acl -LiteralPath $configPath

@@ -15,6 +15,8 @@ public sealed record AgentSettings(int Version, string Name, string Token, strin
 
 public static class Provisioning
 {
+    public static string PairingPath(string directory) => Path.Combine(directory, Environment.MachineName + "-pairing.json");
+
     public static string DefaultDirectory => AppContext.BaseDirectory;
     public static string LegacyDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "OfficePowerAgent");
 
@@ -22,7 +24,7 @@ public static class Provisioning
     {
         if (File.Exists(Path.Combine(directory, "agent-settings.json"))) return false;
         if (!File.Exists(Path.Combine(legacyDirectory, "agent-settings.json"))) return false;
-        if (File.Exists(Path.Combine(directory, "server.pfx")) || File.Exists(Path.Combine(directory, "pairing.json")))
+        if (File.Exists(Path.Combine(directory, "server.pfx")) || File.Exists(Path.Combine(directory, "pairing.json")) || File.Exists(PairingPath(directory)))
             throw new IOException("이전 인증 파일과 새 폴더의 파일이 충돌합니다. 기존 파일을 보존하고 확인하세요.");
         foreach (var path in new[] { legacyDirectory, Path.Combine(legacyDirectory, "agent-settings.json"), Path.Combine(legacyDirectory, "server.pfx") })
             if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
@@ -51,7 +53,7 @@ public static class Provisioning
         string config = Path.Combine(directory, "agent-settings.json");
         if (File.Exists(config)) { ExportPairing(directory); return; }
         if (new[] { "server.pfx", "pairing.json", "agent-settings.json.tmp" }
-            .Any(name => File.Exists(Path.Combine(directory, name))))
+            .Any(name => File.Exists(Path.Combine(directory, name))) || File.Exists(PairingPath(directory)))
             throw new IOException("초기화가 중단된 폴더입니다. 기존 파일을 보존하고 확인하세요.");
         var settings = new AgentSettings(1, Environment.MachineName, Tokens.Create(), Tokens.Create(), 18765);
         using var key = RSA.Create(3072);
@@ -95,7 +97,8 @@ public static class Provisioning
             var pairing = new PairingInfo(1, settings.Name, ips, macs, settings.Port,
                 cert.GetCertHashString(HashAlgorithmName.SHA256), settings.Token);
             pairing.Validate();
-            WriteAtomic(Path.Combine(directory, "pairing.json"), JsonSerializer.Serialize(pairing, JsonFormat.Options));
+            WriteAtomic(PairingPath(directory), JsonSerializer.Serialize(pairing, JsonFormat.Options));
+            File.Delete(Path.Combine(directory, "pairing.json"));
         }
     }
 

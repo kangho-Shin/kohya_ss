@@ -39,7 +39,7 @@ public partial class RegistrationForm : Form
             token = pairing.Token; fingerprint = pairing.CertificateSha256; port = pairing.Port;
             certificateLabel.Text = "인증서 지문: " + fingerprint + "\n다중 랜카드가 있으면 IP와 MAC을 확인하세요.";
         }
-        catch (Exception) { MessageBox.Show(this, "대상 PC에서 생성한 pairing.json인지 확인하세요.", "인증 파일 읽기 실패"); }
+        catch (Exception) { MessageBox.Show(this, "대상 PC에서 생성한 컴퓨터이름-pairing.json인지 확인하세요.", "인증 파일 읽기 실패"); }
     }
 
     private void SaveButton_Click(object? sender, EventArgs e)
