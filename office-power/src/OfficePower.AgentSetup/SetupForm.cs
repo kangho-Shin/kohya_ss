@@ -10,6 +10,7 @@ public partial class SetupForm : Form
     public SetupForm()
     {
         InitializeComponent();
+        Icon = OfficePower.Desktop.AppIcon.Value;
         pcLabel.Text = "컴퓨터: " + Environment.MachineName;
         try
         {

@@ -17,6 +17,7 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
+        Icon = OfficePower.Desktop.AppIcon.Value;
         store = new PcStore(dataPath, new WindowsSecretProtector());
         computerSource.DataSource = computers;
     }

@@ -5,6 +5,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationIcon>../../assets/agent.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>AgentSetup</AssemblyName>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
@@ -22,4 +23,8 @@
       <EmbeddedResource Include="$(AgentPayloadDirectory)/OfficePower.Agent.exe" LogicalName="OfficePower.Agent.exe" />
     </ItemGroup>
   </Target>
+  <ItemGroup>
+    <EmbeddedResource Include="../../assets/agent.ico" LogicalName="OfficePower.App.ico" />
+    <Compile Include="../Shared/AppIcon.cs" Link="AppIcon.cs" />
+  </ItemGroup>
 </Project>

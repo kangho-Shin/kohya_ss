@@ -15,6 +15,7 @@ public partial class RegistrationForm : Form
     public RegistrationForm(PcRecord? existing)
     {
         InitializeComponent();
+        Icon = OfficePower.Desktop.AppIcon.Value;
         id = existing?.Id ?? Guid.NewGuid();
         if (existing is not null)
         {

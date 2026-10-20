@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup>
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ApplicationIcon>../../assets/agent.ico</ApplicationIcon></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../OfficePower.Core/OfficePower.Core.csproj" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />

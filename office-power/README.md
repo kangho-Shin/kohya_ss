@@ -92,3 +92,5 @@ dotnet build OfficePower.sln -c Release
 상위 폴더의 얼굴 교체 프로그램과는 별도 프로젝트입니다.
 
 인증 파일 이름에는 생성한 PC의 컴퓨터 이름이 붙습니다. 예: `OFFICE-PC01-pairing.json`, `OFFICE-PC02-pairing.json`. 파일 내부의 PC 이름·IP·MAC도 등록 시 표시합니다. 이전 `pairing.json`은 재설치 시 새 이름으로 다시 생성하며 인증키는 유지합니다.
+
+아이콘: Controller는 파란색, Agent·AgentSetup은 초록색 PC 전원 아이콘을 사용합니다. 창과 작업 표시줄 아이콘도 EXE 내부 리소스를 사용하므로 별도 ICO 파일을 배포할 필요가 없습니다. 원본은 `assets`에 있으며 수정 시 `scripts/Generate-Icons.py`(Pillow 필요)로 다시 생성할 수 있습니다.
