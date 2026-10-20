@@ -24,6 +24,7 @@ foreach ($file in @('Install-Agent.ps1', 'Uninstall-Agent.ps1', 'Install-Agent.c
     Copy-Item -LiteralPath (Join-Path $scriptDirectory $file) -Destination $bundle -Force
 }
 Copy-Item -LiteralPath (Join-Path $project 'README.md') -Destination $bundle -Force
+Copy-Item -LiteralPath (Join-Path $project 'OfficePower-Field-Guide-KO.txt') -Destination $bundle -Force
 Copy-Item -LiteralPath (Join-Path $bundle 'AgentSetup\AgentSetup.exe') -Destination (Join-Path $bundle 'AgentSetup.exe') -Force
 Remove-Item -LiteralPath (Join-Path $bundle 'AgentSetup') -Recurse -Force
 Write-Host "Windows folder: $bundle"
