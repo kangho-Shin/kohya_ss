@@ -2,7 +2,7 @@
 # Isolated Windows CI validation. NEVER sends /shutdown.
 $ErrorActionPreference = 'Stop'
 $bundle = Join-Path $PSScriptRoot '..\artifacts\OfficePower-win-x64'
-$data = Join-Path $env:ProgramData 'OfficePowerAgent'
+$data = Join-Path $env:ProgramFiles 'OfficePowerAgent'
 if (Get-Service OfficePowerAgent -ErrorAction SilentlyContinue) { throw 'This test requires an isolated machine without an existing Office Power service.' }
 
 Add-Type -TypeDefinition @'

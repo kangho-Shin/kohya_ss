@@ -18,7 +18,7 @@ if ([string]::IsNullOrWhiteSpace($AgentSource)) {
 $AgentSource = [IO.Path]::GetFullPath($AgentSource)
 $serviceName = 'OfficePowerAgent'
 $installDir = Join-Path $env:ProgramFiles 'OfficePowerAgent'
-$dataDir = Join-Path $env:ProgramData 'OfficePowerAgent'
+$dataDir = $installDir
 $exe = Join-Path $installDir 'OfficePower.Agent.exe'
 
 function Set-RestrictedDirectory([string]$Path) {
@@ -38,7 +38,7 @@ function Set-RestrictedDirectory([string]$Path) {
 if (-not (Test-Path -LiteralPath (Join-Path $AgentSource 'OfficePower.Agent.exe'))) {
     throw 'Agent folder not found. Extract the full Windows release ZIP first.'
 }
-foreach ($path in @($installDir, $dataDir)) {
+foreach ($path in @($installDir, $dataDir) | Select-Object -Unique) {
     if ((Test-Path -LiteralPath $path) -and ((Get-Item -LiteralPath $path).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
         throw 'Refusing a symbolic-link installation directory.'
     }
@@ -60,7 +60,7 @@ if ($existing) {
 }
 Copy-Item -Path (Join-Path $AgentSource '*') -Destination $installDir -Recurse -Force
 # Apply inherited protection to existing files, too, before secrets are read/written.
-foreach ($path in @($installDir, $dataDir)) {
+foreach ($path in @($installDir, $dataDir) | Select-Object -Unique) {
     & icacls.exe $path /setowner '*S-1-5-32-544' /T /Q | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Could not secure file ownership.' }
     if (@(Get-ChildItem -LiteralPath $path -Force).Count -gt 0) {

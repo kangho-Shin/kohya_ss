@@ -14,4 +14,5 @@ Get-NetFirewallRule -Name 'OfficePowerAgent-LAN' -ErrorAction SilentlyContinue |
 Write-Host 'Service and firewall rule removed.'
 Write-Host 'Program files and credentials were preserved. Remove them manually only if no longer needed:'
 Write-Host (Join-Path $env:ProgramFiles 'OfficePowerAgent')
+Write-Host 'Older versions may also have preserved files in:'
 Write-Host (Join-Path $env:ProgramData 'OfficePowerAgent')

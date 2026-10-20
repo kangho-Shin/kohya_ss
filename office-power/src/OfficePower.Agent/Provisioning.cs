@@ -15,13 +15,44 @@ public sealed record AgentSettings(int Version, string Name, string Token, strin
 
 public static class Provisioning
 {
-    public static string DefaultDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "OfficePowerAgent");
+    public static string DefaultDirectory => AppContext.BaseDirectory;
+    public static string LegacyDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "OfficePowerAgent");
+
+    public static bool MigrateLegacyData(string directory, string legacyDirectory)
+    {
+        if (File.Exists(Path.Combine(directory, "agent-settings.json"))) return false;
+        if (!File.Exists(Path.Combine(legacyDirectory, "agent-settings.json"))) return false;
+        if (File.Exists(Path.Combine(directory, "server.pfx")) || File.Exists(Path.Combine(directory, "pairing.json")))
+            throw new IOException("이전 인증 파일과 새 폴더의 파일이 충돌합니다. 기존 파일을 보존하고 확인하세요.");
+        foreach (var path in new[] { legacyDirectory, Path.Combine(legacyDirectory, "agent-settings.json"), Path.Combine(legacyDirectory, "server.pfx") })
+            if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+                throw new IOException("인증 정보의 바로가기 또는 링크 경로는 사용하지 않습니다.");
+        var (_, certificate) = Load(legacyDirectory);
+        certificate.Dispose();
+        Directory.CreateDirectory(directory);
+        // Preserve the original files. Configuration is committed last so partial
+        // migration cannot be mistaken for a complete configuration.
+        foreach (var name in new[] { "server.pfx", "agent-settings.json" })
+        {
+            string destination = Path.Combine(directory, name);
+            string temporary = destination + "." + Guid.NewGuid() + ".tmp";
+            try
+            {
+                File.Copy(Path.Combine(legacyDirectory, name), temporary);
+                File.Move(temporary, destination, overwrite: false);
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        }
+        return true;
+    }
 
     public static void Initialize(string directory)
     {
         string config = Path.Combine(directory, "agent-settings.json");
         if (File.Exists(config)) { ExportPairing(directory); return; }
-        if (Directory.EnumerateFiles(directory).Any()) throw new IOException("초기화가 중단된 폴더입니다. 기존 파일을 보존하고 확인하세요.");
+        if (new[] { "server.pfx", "pairing.json", "agent-settings.json.tmp" }
+            .Any(name => File.Exists(Path.Combine(directory, name))))
+            throw new IOException("초기화가 중단된 폴더입니다. 기존 파일을 보존하고 확인하세요.");
         var settings = new AgentSettings(1, Environment.MachineName, Tokens.Create(), Tokens.Create(), 18765);
         using var key = RSA.Create(3072);
         var request = new CertificateRequest("CN=OfficePowerAgent", key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
