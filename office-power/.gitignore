@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.vs/
+TestResults/
+artifacts/
+.work/
+*.user
+*.pfx
+*pairing*.json
+agent-settings.json
+computers.json

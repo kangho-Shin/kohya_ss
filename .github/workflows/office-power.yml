@@ -1,0 +1,40 @@
+name: Office Power Windows
+on:
+  push:
+    branches: ['**']
+    paths: ['office-power/**', '.github/workflows/office-power.yml']
+    tags: ['office-power-v*']
+  pull_request:
+    paths: ['office-power/**', '.github/workflows/office-power.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: office-power
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: office-power/global.json
+      - run: dotnet test tests/OfficePower.Tests/OfficePower.Tests.csproj -c Release --nologo
+      - run: dotnet build OfficePower.slnx -c Release --nologo
+      - run: ./scripts/Publish-Windows.ps1
+      - name: Validate installer and private-key ACLs on Windows
+        run: ./scripts/Test-Installation.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OfficePower-win-x64
+          path: office-power/artifacts/OfficePower-win-x64.zip
+      - if: startsWith(github.ref, 'refs/tags/office-power-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: office-power/artifacts/OfficePower-win-x64.zip
+          name: Office Power ${{ github.ref_name }}
+          body: '개인 사무실 LAN용 PC 전원 관리. ZIP을 풀고 README.md의 설치 순서를 따르세요. 하드웨어 WOL 설정은 각 PC에서 필요합니다.'

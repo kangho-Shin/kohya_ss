@@ -1,3 +1,13 @@
+# 사무실 PC 전원 관리 — C# / Windows
+
+여러 PC의 IP·MAC을 등록하고 같은 사무실 망에서 켜기·끄기를 실행하는 **C# 관리 프로그램과 Windows 서비스**입니다.
+
+**[C# 프로젝트](office-power/) · [설치 및 사용 방법](office-power/README.md) · [윈도우 실행 ZIP 릴리스](https://github.com/kangho-Shin/kohya_ss/releases/tag/office-power-v0.1.0)**
+
+대상 PC에는 `Install-Agent.cmd`, 관리 PC에서는 `Start-Controller.cmd`를 사용합니다. 실행 ZIP은 릴리스 빌드가 끝나면 위 릴리스에 첨부됩니다.
+
+---
+
 # 내 사진 얼굴 교체 — Windows / Python
 
 사진 두 장을 골라 얼굴을 교체하고 PNG로 저장하는 개인용 데스크톱 프로그램입니다. **실행할 컴퓨터: Windows 10/11 64비트, RTX 3080.** 저장소 이름은 `kohya_ss`지만 kohya 학습 도구가 아닌 독립 프로그램입니다.
