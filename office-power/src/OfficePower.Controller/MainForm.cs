@@ -34,6 +34,10 @@ public partial class MainForm : Form
             Info("등록 파일을 보존했습니다. %LOCALAPPDATA%\\OfficePower\\computers.json을 확인하세요.");
         }
         finally { SetBusy(false); }
+
+        // Startup checks every saved PC without changing power-action selection.
+        // Keep network failures separate from registration-file loading failures.
+        if (!loadFailed) await Execute(computers.ToArray(), GetConnectionStatusAsync);
     }
 
     private void SetBusy(bool value)
@@ -121,11 +125,14 @@ public partial class MainForm : Form
         return "켜기 요청 전송 (부팅 미확인)";
     });
 
-    private async void StatusButton_Click(object? sender, EventArgs e) => await Execute(SelectedRows(), async pc =>
+    private async Task<string> GetConnectionStatusAsync(PcRecord pc)
     {
         var status = await client.GetStatusAsync(pc);
         return status.State == "shutdown-scheduled" ? "연결됨 · 종료 예약 중" : "연결됨 · 서비스 정상";
-    });
+    }
+
+    private async void StatusButton_Click(object? sender, EventArgs e) =>
+        await Execute(SelectedRows(), GetConnectionStatusAsync);
 
     private async void ShutdownButton_Click(object? sender, EventArgs e)
     {
